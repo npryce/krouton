@@ -51,10 +51,10 @@ class SuffixedUrlScheme<T>(private val rest: UrlScheme<T>, private val suffix: S
     override fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>? {
         val parse = rest.parsePathElements(pathElements)
 
-        if (parse == null || parse.second != listOf(suffix)) {
+        if (parse == null || parse.second.firstOrNull() != suffix) {
             return null
         } else {
-            return Pair(parse.first, emptyList())
+            return Pair(parse.first, parse.second.tail())
         }
     }
 
@@ -80,34 +80,34 @@ class AppendedUrlScheme<T,U>(private val tScheme: UrlScheme<T>, private val uSch
     }
 }
 
-interface Abstraction1<T,U> {
-    fun fromPath(t: T): U?
-    fun toPath(u: U): T
+interface Has1Part<T,U> {
+    fun fromParts(t: T): U?
+    fun toParts(u: U): T
 }
 
-class Abstraction1UrlScheme<T1, U>(
+class Has1PartUrlScheme<T1, U>(
         private val base: UrlScheme<T1>,
-        private val mapping: Abstraction1<T1, U>) : UrlScheme<U>
+        private val mapping: Has1Part<T1, U>) : UrlScheme<U>
 {
     override fun parsePathElements(pathElements: List<String>) =
-            base.parsePathElements(pathElements).flatMapFirst { mapping.fromPath(it) }
+            base.parsePathElements(pathElements).flatMapFirst { mapping.fromParts(it) }
 
     override fun pathElementsFrom(value: U) =
-            base.pathElementsFrom(mapping.toPath(value))
+            base.pathElementsFrom(mapping.toParts(value))
 }
 
-interface Abstraction2<T1, T2, U> {
-    fun fromPath(t1: T1, t2: T2): U?
-    fun toPath(u: U): Pair<T1, T2>
+interface Has2Parts<T1, T2, U> {
+    fun fromParts(t1: T1, t2: T2): U?
+    fun toParts(u: U): Pair<T1, T2>
 }
 
-class Abstraction2UrlScheme<T1, T2, U>(
+class Has2PartsUrlScheme<T1, T2, U>(
         private val base: UrlScheme<Pair<T1, T2>>,
-        private val mapping: Abstraction2<T1, T2, U>) : UrlScheme<U>
+        private val mapping: Has2Parts<T1, T2, U>) : UrlScheme<U>
 {
     override fun parsePathElements(pathElements: List<String>) =
-            base.parsePathElements(pathElements).flatMapFirst { mapping.fromPath(it.first, it.second) }
+            base.parsePathElements(pathElements).flatMapFirst { mapping.fromParts(it.first, it.second) }
 
     override fun pathElementsFrom(value: U) =
-            base.pathElementsFrom(mapping.toPath(value))
+            base.pathElementsFrom(mapping.toParts(value))
 }
