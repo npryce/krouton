@@ -2,6 +2,7 @@ package com.natpryce.krouton
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 object string : PathElement<String>() {
     override fun parsePathElement(element: String) = element
@@ -26,7 +27,7 @@ object isoLocalDate : PathElement<LocalDate>() {
     private val format = DateTimeFormatter.ISO_LOCAL_DATE
 
     override fun parsePathElement(element: String) =
-            parse<LocalDate, NumberFormatException>(element) { LocalDate.parse(element, format) }
+            parse<LocalDate, DateTimeParseException>(element) { LocalDate.parse(element, format) }
 
     override fun pathElementFrom(value: LocalDate) =
             value.format(format)

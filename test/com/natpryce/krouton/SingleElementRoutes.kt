@@ -5,6 +5,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.present
 import org.junit.Test
+import java.time.LocalDate
 
 class SingleElementRoutes {
     @Test
@@ -13,6 +14,7 @@ class SingleElementRoutes {
         assertThat(int.parse("/1"), present(equalTo(1)))
         assertThat(double.parse("/1"), present(equalTo(1.0)))
         assertThat(double.parse("/1.0"), present(equalTo(1.0)))
+        assertThat(isoLocalDate.parse("/2016-02-25"), present(equalTo(LocalDate.of(2016, 2, 25))))
     }
 
     @Test
@@ -20,6 +22,7 @@ class SingleElementRoutes {
         assertThat(string.parse("/"), absent())
         assertThat(string.parse("/foo/bar"), absent())
         assertThat(int.parse("/bob"), absent())
+        assertThat(isoLocalDate.parse("/2016-XX-88"), absent())
     }
 
     @Test
