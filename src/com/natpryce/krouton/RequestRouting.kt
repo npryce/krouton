@@ -1,27 +1,28 @@
 package com.natpryce.krouton
 
-infix fun <EXCH, T> UrlScheme<T>.by(handler: (EXCH, T) -> Unit) = fun(exchange: EXCH, path: String) : Boolean {
+infix fun <Exchange, T> UrlScheme<T>.by(handler: (Exchange, T) -> Unit) = fun(exchange: Exchange, path: String): Boolean {
     val parsed = parse(path)
     if (parsed == null) {
         return false
-    }
-    else {
+    } else {
         handler(exchange, parsed)
         return true
     }
 }
 
+fun <Exchange, Criteria> routeBy(exchangeToCriteria: (Exchange) -> Criteria,
+                                 vararg routes: (Exchange, Criteria) -> Boolean) =
+        fun(exchange: Exchange): Boolean {
+            val criteria = exchangeToCriteria(exchange)
+            for (route in routes) {
+                if (route(exchange, criteria)) return true
+            }
+            return false
+        }
 
-fun <EXCH, T> routeBy(exchangeToCriteria: (EXCH) -> T, vararg routes: (EXCH, T) -> Boolean) = fun(exchange: EXCH): Boolean {
-    val criteria = exchangeToCriteria(exchange)
-    for (route in routes) {
-        if (route(exchange, criteria)) return true
-    }
+infix fun <Exchange, Criteria> ((Exchange, Criteria) -> Boolean).or(that: (Exchange, Criteria) -> Boolean) =
+        fun(exchange: Exchange, criteria: Criteria) = this(exchange, criteria) || that(exchange, criteria)
 
-    return false
-}
-
-
-infix fun <EXCH> ((EXCH) -> Boolean).otherwise(fallback: (EXCH) -> Unit): (EXCH) -> Unit = fun(exchange: EXCH) {
+infix fun <Exchange> ((Exchange) -> Boolean).otherwise(fallback: (Exchange) -> Unit): (Exchange) -> Unit = fun(exchange: Exchange) {
     if (!this(exchange)) fallback(exchange)
 }

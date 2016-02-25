@@ -6,7 +6,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.present
 import org.junit.Test
 
-class SuffixedRoutes {
+class Suffixion {
     @Test
     fun route_suffixed_single_element() {
         assertThat((string / "foo").parse("/bob/foo"), present(equalTo("bob")))

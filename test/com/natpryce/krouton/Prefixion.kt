@@ -6,7 +6,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.present
 import org.junit.Test
 
-class PrefixedRoutes {
+class Prefixion {
     @Test
     fun route_prefixed_single_element() {
         assertThat(("foo" / string).parse("/foo/bob"), present(equalTo("bob")))

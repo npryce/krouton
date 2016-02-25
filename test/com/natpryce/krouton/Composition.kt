@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.present
 import org.junit.Test
 
-class CombinedRoutes {
+class Composition {
     @Test
     fun combined_routes() {
         assertThat((int / string).parse("/9/alice"), present(equalTo(Pair(9, "alice"))))

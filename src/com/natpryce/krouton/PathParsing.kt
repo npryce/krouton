@@ -80,6 +80,14 @@ class AppendedUrlScheme<T,U>(private val tScheme: UrlScheme<T>, private val uSch
     }
 }
 
+class RestrictedUrlScheme<T>(private val base: UrlScheme<T>, private val p: (T) -> Boolean) : UrlScheme<T> {
+    override fun parsePathElements(pathElements: List<String>) =
+            base.parsePathElements(pathElements)?.flatMapFirst { if (p(it)) it else null }
+
+    override fun pathElementsFrom(value: T) = base.pathElementsFrom(value)
+}
+
+
 interface Has1Part<T,U> {
     fun fromParts(t: T): U?
     fun toParts(u: U): T

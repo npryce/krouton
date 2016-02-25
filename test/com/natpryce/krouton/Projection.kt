@@ -7,7 +7,7 @@ import org.junit.Test
 import java.util.*
 
 
-class Conversion {
+class Projection {
     object MillisSinceEpoch : Has1Part<Long,Date> {
         override fun fromParts(t: Long): Date? = Date(t)
         override fun toParts(u: Date) = u.time
