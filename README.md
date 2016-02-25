@@ -1,18 +1,18 @@
 
 
-Route Operations:
+Routing Operations:
 
-* Parsing: `Route<T>.parse(String) -> T?`
-* Construct: `Route<T>.path(T) -> String`
+* Parsing: `UrlScheme<T>.parse(String) -> T?`
+* Reverse Routing: `UrlScheme<T>.path(T) -> String`
 
 
 Route Algebra:
 
-* Composition: `Route<T> / Route<U> -> Route<(T,U)>`
-* Prefixion: `String / Route<T> -> Route<T>`
-* Suffixion: `Route<T> / String -> Route<T>`
-* Restriction: `Route<T> when (T->Boolean) -> Route<T>`
-* Projection: `Route<T> asA (T<->S?) -> Route<S>` 
+* Composition: `UrlScheme<T> / Route<U> -> UrlScheme<(T,U)>`
+* Prefixion: `String / UrlScheme<T> -> UrlScheme<T>`
+* Suffixion: `UrlScheme<T> / String -> UrlScheme<T>`
+* Restriction: `UrlScheme<T> when (T)->Boolean -> UrlScheme<T>`
+* Projection: `UrlScheme<T> asA Mapping<T,U> -> UrlScheme<U>` 
 
 
 Opinionated:

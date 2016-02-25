@@ -88,68 +88,68 @@ class RestrictedUrlScheme<T>(private val base: UrlScheme<T>, private val p: (T) 
 }
 
 
-interface Has1Part<T,U> {
+interface Projection1<T,U> {
     fun fromParts(t: T): U?
     fun toParts(u: U): T
 }
 
-class Has1PartUrlScheme<T1, U>(
+class Projection1UrlScheme<T1, U>(
         private val base: UrlScheme<T1>,
-        private val mapping: Has1Part<T1, U>) : UrlScheme<U>
+        private val projection: Projection1<T1, U>) : UrlScheme<U>
 {
     override fun parsePathElements(pathElements: List<String>) =
-            base.parsePathElements(pathElements).flatMapFirst { mapping.fromParts(it) }
+            base.parsePathElements(pathElements).flatMapFirst { projection.fromParts(it) }
 
     override fun pathElementsFrom(value: U) =
-            base.pathElementsFrom(mapping.toParts(value))
+            base.pathElementsFrom(projection.toParts(value))
 }
 
-interface Has2Parts<T1, T2, U> {
+interface Projection2<T1, T2, U> {
     fun fromParts(t1: T1, t2: T2): U?
     fun toParts(u: U): Pair<T1, T2>
 }
 
-class Has2PartsUrlScheme<T1, T2, U>(
+class Projection2UrlScheme<T1, T2, U>(
         private val base: UrlScheme<Pair<T1, T2>>,
-        private val mapping: Has2Parts<T1, T2, U>) : UrlScheme<U>
+        private val projection: Projection2<T1, T2, U>) : UrlScheme<U>
 {
     override fun parsePathElements(pathElements: List<String>) =
-            base.parsePathElements(pathElements).flatMapFirst { mapping.fromParts(it.first, it.second) }
+            base.parsePathElements(pathElements).flatMapFirst { projection.fromParts(it.first, it.second) }
 
     override fun pathElementsFrom(value: U) =
-            base.pathElementsFrom(mapping.toParts(value))
+            base.pathElementsFrom(projection.toParts(value))
 }
 
-interface Has3Parts<T1, T2, T3, U> {
+interface Projection3<T1, T2, T3, U> {
     fun fromParts(t1: T1, t2: T2, t3: T3): U?
     fun toParts(u: U): Pair<Pair<T1, T2>, T3>
 }
 
-class Has3PartsUrlScheme<T1, T2, T3, U>(
+class Projection3UrlScheme<T1, T2, T3, U>(
         private val base: UrlScheme<Pair<Pair<T1, T2>, T3>>,
-        private val mapping: Has3Parts<T1, T2, T3, U>) : UrlScheme<U>
+        private val projection: Projection3<T1, T2, T3, U>) : UrlScheme<U>
 {
     override fun parsePathElements(pathElements: List<String>) =
             base.parsePathElements(pathElements).flatMapFirst {
-                mapping.fromParts(it.first.first, it.first.second, it.second) }
+                projection.fromParts(it.first.first, it.first.second, it.second) }
 
     override fun pathElementsFrom(value: U) =
-            base.pathElementsFrom(mapping.toParts(value))
+            base.pathElementsFrom(projection.toParts(value))
 }
 
-interface Has4Parts<T1, T2, T3, T4, U> {
+interface Projection4<T1, T2, T3, T4, U> {
     fun fromParts(t1: T1, t2: T2, t3: T3, t4: T4): U?
     fun toParts(u: U): Pair<Pair<Pair<T1, T2>, T3>, T4>
 }
 
-class Has4PartsUrlScheme<T1, T2, T3, T4, U>(
+class Projection4UrlScheme<T1, T2, T3, T4, U>(
         private val base: UrlScheme<Pair<Pair<Pair<T1, T2>, T3>, T4>>,
-        private val mapping: Has4Parts<T1, T2, T3, T4, U>) : UrlScheme<U>
+        private val projection: Projection4<T1, T2, T3, T4, U>) : UrlScheme<U>
 {
     override fun parsePathElements(pathElements: List<String>) =
             base.parsePathElements(pathElements).flatMapFirst {
-                mapping.fromParts(it.first.first.first, it.first.first.second, it.first.second, it.second) }
+                projection.fromParts(it.first.first.first, it.first.first.second, it.first.second, it.second) }
 
     override fun pathElementsFrom(value: U) =
-            base.pathElementsFrom(mapping.toParts(value))
+            base.pathElementsFrom(projection.toParts(value))
 }

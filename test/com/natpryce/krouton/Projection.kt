@@ -8,7 +8,7 @@ import java.util.*
 
 
 class Projection {
-    object MillisSinceEpoch : Has1Part<Long,Date> {
+    object MillisSinceEpoch : Projection1<Long,Date> {
         override fun fromParts(t: Long): Date? = Date(t)
         override fun toParts(u: Date) = u.time
     }
@@ -27,7 +27,7 @@ class Projection {
 
 
     data class Score(val name: String, val score: Int) {
-        companion object : Has2Parts<String,Int,Score> {
+        companion object : Projection2<String,Int,Score> {
             override fun fromParts(t1: String, t2: Int): Score? = Score(t1, t2)
             override fun toParts(u: Score): Pair<String, Int> = u.name to u.score
         }
@@ -46,7 +46,7 @@ class Projection {
     }
 
     data class TimestampedScore(val timestamp: Date, val score: Score) {
-        companion object : Has2Parts<Date,Score,TimestampedScore> {
+        companion object : Projection2<Date,Score,TimestampedScore> {
             override fun fromParts(t1: Date, t2: Score) = TimestampedScore(t1, t2)
 
             override fun toParts(u: TimestampedScore): Pair<Date, Score> {
