@@ -3,6 +3,9 @@ package com.natpryce.krouton.jdkhttp
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.*
+import com.natpryce.krouton.reactive.by
+import com.natpryce.krouton.reactive.otherwise
+import com.natpryce.krouton.reactive.routerBy
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import org.junit.After
@@ -28,36 +31,36 @@ fun HttpExchange.sendError(statusCode: Int) {
     close()
 }
 
-fun <T> HttpExchange.sendRedirect(scheme: UrlScheme<T>, value: T) {
-    responseHeaders.add("Location", scheme.path(value))
+fun HttpExchange.sendRedirect(path: String) {
+    responseHeaders.add("Location", path)
     sendResponseHeaders(HTTP_MOVED_TEMP, 0)
     close()
 }
 
-fun willSendError(statusCode: Int) = fun(exchange: HttpExchange) {
+fun sendError(statusCode: Int) = fun(exchange: HttpExchange) {
     exchange.sendError(statusCode)
 }
 
 fun path(httpExchange: HttpExchange) = httpExchange.requestURI.path
 
 
+val uppercase = "uppercase"/string where { s -> !s.all(Char::isUpperCase) }
+val reverse = "reverse"/string
+val negate = "negate"/int
+val negative = "negative"/int
 
 class HttpRoutingExample {
     private val server = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0).apply {
-        val uppercase = "uppercase"/string where { s -> !s.all(Char::isUpperCase) }
-        val reverse = "reverse"/string
-        val negate = "negate"/int
-        val negative = "negative"/int
 
         createContext("/",
                 routerBy(::path,
                         negate by { exchange, i -> exchange.sendString((-i).toString()) },
-                        negative by { exchange, i -> exchange.sendRedirect(negate, i) },
+                        negative by { exchange, i -> exchange.sendRedirect(negate.path(i)) },
 
                         uppercase by { exchange, s -> exchange.sendString(s.toUpperCase()) },
 
                         reverse by { exchange, s -> exchange.sendString(s.reversed()) }
-                ) otherwise willSendError(HTTP_NOT_FOUND))
+                ) otherwise sendError(HTTP_NOT_FOUND))
         start()
     }
 

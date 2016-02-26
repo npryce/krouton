@@ -1,4 +1,7 @@
-package com.natpryce.krouton
+package com.natpryce.krouton.reactive
+
+import com.natpryce.krouton.UrlScheme
+import com.natpryce.krouton.parse
 
 infix fun <Exchange, T> UrlScheme<T>.by(handler: (Exchange, T) -> Unit) = fun(exchange: Exchange, path: String): Boolean {
     val parsed = parse(path)
