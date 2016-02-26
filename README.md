@@ -1,6 +1,10 @@
 
+Separate reactive code from routing policy
 
-Routing Operations:
+* Routing policy defined by constants (immutable objects)
+* Routing done by functions/closures/objects
+
+Routing Policy Operations:
 
 * Parsing: `UrlScheme<T>.parse(String) -> T?`
 * Reverse Routing: `UrlScheme<T>.path(T) -> String`
