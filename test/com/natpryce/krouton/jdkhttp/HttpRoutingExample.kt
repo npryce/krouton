@@ -3,65 +3,61 @@ package com.natpryce.krouton.jdkhttp
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.*
-import com.natpryce.krouton.reactive.by
-import com.natpryce.krouton.reactive.otherwise
-import com.natpryce.krouton.reactive.routerBy
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpServer
-import org.junit.After
+import com.natpryce.krouton.simple.by
+import com.natpryce.krouton.simple.otherwise
+import com.natpryce.krouton.simple.routeOn
+import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.Test
 import java.io.FileNotFoundException
-import java.net.HttpURLConnection.*
-import java.net.InetAddress
-import java.net.InetSocketAddress
-import java.net.URI
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 
 
-val HttpServer.uri: URI get() = URI("http", null, address.address.hostAddress, address.port, null, null, null)
+val uppercase = "uppercase" / string where { s -> s.any(Char::isLowerCase) }
+val reverse = "reverse" / string
+val negate = "negate" / int
+val negative = "negative" / int
 
-fun HttpExchange.sendString(s: String) {
-    sendResponseHeaders(200, 0)
-    responseBody.bufferedWriter().use { w ->
-        w.write(s)
+
+val server = HttpServer(0) { exchange ->
+    routeOn(exchange.requestURI.rawPath,
+            negate by { i ->
+                exchange.sendString((-i).toString())
+            },
+
+            negative by { i ->
+                exchange.sendRedirect(negate.path(i))
+            },
+
+            uppercase by { s ->
+                exchange.sendString(s.toUpperCase())
+            },
+
+            reverse by { s ->
+                exchange.sendString(s.reversed())
+            }
+
+    ) otherwise {
+        exchange.sendError(HTTP_NOT_FOUND)
     }
 }
 
-fun HttpExchange.sendError(statusCode: Int) {
-    sendResponseHeaders(statusCode, 0)
-    close()
+
+fun main(args: Array<String>) {
+    server.start()
 }
-
-fun HttpExchange.sendRedirect(path: String) {
-    responseHeaders.add("Location", path)
-    sendResponseHeaders(HTTP_MOVED_TEMP, 0)
-    close()
-}
-
-fun sendError(statusCode: Int) = fun(exchange: HttpExchange) {
-    exchange.sendError(statusCode)
-}
-
-fun path(httpExchange: HttpExchange) = httpExchange.requestURI.path
-
-
-val uppercase = "uppercase"/string where { s -> !s.all(Char::isUpperCase) }
-val reverse = "reverse"/string
-val negate = "negate"/int
-val negative = "negative"/int
 
 class HttpRoutingExample {
-    private val server = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0).apply {
+    companion object {
+        @BeforeClass @JvmStatic
+        fun startServer() {
+            server.start()
+        }
 
-        createContext("/",
-                routerBy(::path,
-                        negate by { exchange, i -> exchange.sendString((-i).toString()) },
-                        negative by { exchange, i -> exchange.sendRedirect(negate.path(i)) },
-
-                        uppercase by { exchange, s -> exchange.sendString(s.toUpperCase()) },
-
-                        reverse by { exchange, s -> exchange.sendString(s.reversed()) }
-                ) otherwise sendError(HTTP_NOT_FOUND))
-        start()
+        @AfterClass @JvmStatic
+        fun stopServer() {
+            server.stop(0)
+        }
     }
 
     @Test
@@ -92,8 +88,4 @@ class HttpRoutingExample {
     private fun getText(path: String) = server.uri.resolve(path).toURL()
             .openStream().reader().use { it.readText().trim() }
 
-    @After
-    fun stopServer() {
-        server.stop(0)
-    }
 }

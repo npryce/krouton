@@ -6,18 +6,28 @@ interface UrlScheme<T> {
     fun pathElementsFrom(value: T): List<String>
 }
 
-fun <T> UrlScheme<T>.parse(s: String) =
-        parsePathElements(splitPath(s))?.let {
-            val (result, unused) = it
-            if (unused.isEmpty()) result else null
-        }
+fun <T> UrlScheme<T>.parse(s: String): T? {
+    return parse(splitPath(s))
+}
+
+fun <T> UrlScheme<T>.parse(splitPath: List<String>): T? {
+    return parsePathElements(splitPath)?.let {
+        val (result, unused) = it
+        if (unused.isEmpty()) result else null
+    }
+}
+
+fun <T> UrlScheme<T>.path(value: T): String {
+    val pathElements = pathElementsFrom(value)
+    return joinPath(pathElements)
+}
+
 
 // TODO: apply URL decoding to path elements
-private fun splitPath(path: String) = path.split("/").filterNot(String::isEmpty)
+fun splitPath(path: String) = path.split("/").filterNot(String::isEmpty)
 
 // TODO: apply URL encoding to path elements
-fun <T> UrlScheme<T>.path(value: T) = "/" + pathElementsFrom(value).joinToString("/")
-
+fun joinPath(pathElements: List<String>) = "/" + pathElements.joinToString("/")
 
 
 abstract class PathElement<T> : UrlScheme<T> {
