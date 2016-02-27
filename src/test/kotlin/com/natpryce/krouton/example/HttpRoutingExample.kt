@@ -1,4 +1,4 @@
-package com.natpryce.krouton.jdkhttp
+package com.natpryce.krouton.example
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -13,12 +13,14 @@ import java.io.FileNotFoundException
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 
 
+// The routes
 val uppercase = "uppercase" / string where { s -> s.any(Char::isLowerCase) }
 val reverse = "reverse" / string
 val negate = "negate" / int
 val negative = "negative" / int
 
 
+// The server that uses the routes
 val server = HttpServer(0) { exchange ->
     routeOn(exchange.requestURI.rawPath,
             negate by { i ->
@@ -26,6 +28,7 @@ val server = HttpServer(0) { exchange ->
             },
 
             negative by { i ->
+                // Note - reverse routing from integer to URL path
                 exchange.sendRedirect(negate.path(i))
             },
 
