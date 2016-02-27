@@ -30,6 +30,14 @@ fun splitPath(path: String) = path.split("/").filterNot(String::isEmpty)
 fun joinPath(pathElements: List<String>) = "/" + pathElements.joinToString("/")
 
 
+object root : UrlScheme<Unit> {
+    override fun pathElementsFrom(value: Unit) = emptyList<String>()
+
+    override fun parsePathElements(pathElements: List<String>) =
+            if (pathElements.isEmpty()) Pair(Unit,pathElements) else null
+}
+
+
 abstract class PathElement<T> : UrlScheme<T> {
     override fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>? =
             pathElements.firstOrNull()

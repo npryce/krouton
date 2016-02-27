@@ -35,6 +35,10 @@ val server = HttpServer(0) { exchange ->
 
             reverse by { s ->
                 exchange.sendString(s.reversed())
+            },
+
+            root by {
+                exchange.sendString("Hello, World.")
             }
 
     ) otherwise {
@@ -83,6 +87,11 @@ class HttpRoutingExample {
     @Test
     fun reverse() {
         assertThat(getText("/reverse/world"), equalTo("dlrow"))
+    }
+
+    @Test
+    fun root() {
+        assertThat(getText("/"), equalTo("Hello, World."))
     }
 
     private fun getText(path: String) = server.uri.resolve(path).toURL()
