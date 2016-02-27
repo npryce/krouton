@@ -1,5 +1,7 @@
 package com.natpryce.krouton
 
+import com.google.common.net.UrlEscapers
+
 
 interface UrlScheme<T> {
     fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>?
@@ -26,8 +28,9 @@ fun <T> UrlScheme<T>.path(value: T): String {
 // TODO: apply URL decoding to path elements
 fun splitPath(path: String) = path.split("/").filterNot(String::isEmpty)
 
-// TODO: apply URL encoding to path elements
-fun joinPath(pathElements: List<String>) = "/" + pathElements.joinToString("/")
+fun joinPath(pathElements: List<String>) = "/" + pathElements.map { s->
+    UrlEscapers.urlPathSegmentEscaper().escape(s)
+}.joinToString("/")
 
 
 object root : UrlScheme<Unit> {
