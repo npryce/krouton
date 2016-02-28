@@ -23,7 +23,7 @@ Compositional: routes are composed from primitive parts, and user-defined routes
 
 ## Route Algebra
 
-* Composition: `UrlScheme<T> / Route<U> -> UrlScheme<(T,U)>`
+* Composition: `UrlScheme<T> / UrlScheme<U> -> UrlScheme<(T,U)>`
 * Prefixion: `String / UrlScheme<T> -> UrlScheme<T>`
 * Suffixion: `UrlScheme<T> / String -> UrlScheme<T>`
 * Restriction: `UrlScheme<T> when (T)->Boolean -> UrlScheme<T>`
