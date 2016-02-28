@@ -7,7 +7,7 @@ import org.junit.Test
 
 class EncodingAndDecoding {
     @Test
-    fun encodes_path_elements() {
+    fun percent_encodes_and_decodes_path_elements() {
         assertEncodeDecode(listOf("hits", "zz top"), "/hits/zz%20top")
         assertEncodeDecode(listOf("hits", "ac/dc"), "/hits/ac%2Fdc")
         assertEncodeDecode(listOf("hits", "? and the mysterians"), "/hits/%3F%20and%20the%20mysterians")
