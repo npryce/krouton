@@ -1,6 +1,7 @@
 package com.natpryce.krouton
 
 import com.google.common.net.UrlEscapers
+import java.net.URI
 
 
 interface UrlScheme<T> {
@@ -25,12 +26,14 @@ fun <T> UrlScheme<T>.path(value: T): String {
 }
 
 
-// TODO: apply URL decoding to path elements
-fun splitPath(path: String) = path.split("/").filterNot(String::isEmpty)
+private fun decodePathElement(s: String) : String = URI(s).path
 
-fun joinPath(pathElements: List<String>) = "/" + pathElements.map { s->
-    UrlEscapers.urlPathSegmentEscaper().escape(s)
-}.joinToString("/")
+private fun encodePathElement(s: String) : String = UrlEscapers.urlPathSegmentEscaper().escape(s)
+
+fun splitPath(path: String) = path.split("/").filterNot(String::isEmpty).map(::decodePathElement)
+
+fun joinPath(pathElements: List<String>) = "/" + pathElements.map(::encodePathElement).joinToString("/")
+
 
 
 object root : UrlScheme<Unit> {

@@ -8,8 +8,13 @@ import org.junit.Test
 class EncodingAndDecoding {
     @Test
     fun encodes_path_elements() {
-        val encoded = (string/string).path("ac/dc" to "zz top")
+        assertEncodeDecode(listOf("hits", "zz top"), "/hits/zz%20top")
+        assertEncodeDecode(listOf("hits", "ac/dc"), "/hits/ac%2Fdc")
+        assertEncodeDecode(listOf("hits", "? and the mysterians"), "/hits/%3F%20and%20the%20mysterians")
+    }
 
-        assertThat(encoded, equalTo("/ac%2Fdc/zz%20top"))
+    fun assertEncodeDecode(pathElements: List<String>, path: String) {
+        assertThat("encoding", joinPath(pathElements), equalTo(path))
+        assertThat("decoding", splitPath(path), equalTo(pathElements))
     }
 }

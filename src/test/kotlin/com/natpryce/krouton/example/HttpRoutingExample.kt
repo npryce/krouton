@@ -89,7 +89,7 @@ class HttpRoutingExample {
 
     @Test
     fun reverse() {
-        assertThat(getText("/reverse/world"), equalTo("dlrow"))
+        assertThat(getText("/reverse/hello%20world"), equalTo("dlrow olleh"))
     }
 
     @Test
