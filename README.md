@@ -1,16 +1,27 @@
+Typesafe, compositional routing and reverse routing for web apps and HTTP microservices
+
+
+## Principles
+
+Type safe routing and reverse routing.
+
+No reflection, annotations or classpath scanning.
 
 Separate reactive code from routing policy
 
 * Routing policy defined by constants (immutable objects)
 * Routing done by functions/closures/objects
 
-Routing Policy Operations:
+Compositional: routes are composed from primitive parts, and user-defined routes can be used in exactly the same way as the predefined primitives.
+
+
+## Routing Policy Operations
 
 * Parsing: `UrlScheme<T>.parse(String) -> T?`
 * Reverse Routing: `UrlScheme<T>.path(T) -> String`
 
 
-Route Algebra:
+## Route Algebra
 
 * Composition: `UrlScheme<T> / Route<U> -> UrlScheme<(T,U)>`
 * Prefixion: `String / UrlScheme<T> -> UrlScheme<T>`
@@ -19,7 +30,7 @@ Route Algebra:
 * Projection: `UrlScheme<T> asA Mapping<T,U> -> UrlScheme<U>` 
 
 
-Opinionated:
+## Opinionated
 
 * Mandatory aspects of a resource locator go in the path
 * All query parameters are optional
