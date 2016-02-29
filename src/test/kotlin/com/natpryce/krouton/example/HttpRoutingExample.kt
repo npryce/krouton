@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.time.LocalDate.now
 
 // An application-specific mapping between parsed URL elements and typed data
-object LocalDate : Projection3<Int,Int,Int,LocalDate> {
+object _LocalDate : Projection3<Int,Int,Int,LocalDate> {
     override fun fromParts(t1: Int, t2: Int, t3: Int) =
             try { LocalDate.of(t1, t2, t3) } catch (e: DateTimeException) { null }
 
@@ -30,7 +30,7 @@ object LocalDate : Projection3<Int,Int,Int,LocalDate> {
 val year = int
 val month = int
 val day = int
-val date = year/month/day asA LocalDate
+val date = year/month/day asA _LocalDate
 
 // Application routes
 val reverse = "reverse" / string
@@ -39,8 +39,9 @@ val negative = "negative" / int
 val weekday = "weekday" / date
 val weekdayToday = root / "weekday" / "today"
 
+
 // The server that uses the routes
-val server = HttpServer(0) { exchange ->
+fun exampleServer(port: Int = 0) = HttpServer(port) { exchange ->
     routeOn(exchange.requestURI.rawPath,
             negate by { i ->
                 exchange.sendString((-i).toString())
@@ -75,23 +76,7 @@ val server = HttpServer(0) { exchange ->
 }
 
 
-fun main(args: Array<String>) {
-    server.start()
-}
-
 class HttpRoutingExample {
-    companion object {
-        @BeforeClass @JvmStatic
-        fun startServer() {
-            server.start()
-        }
-
-        @AfterClass @JvmStatic
-        fun stopServer() {
-            server.stop(0)
-        }
-    }
-
     @Test
     fun negate() {
         assertThat(getText("/negate/100"), equalTo("-100"))
@@ -126,6 +111,20 @@ class HttpRoutingExample {
     @Test
     fun root() {
         assertThat(getText("/"), equalTo("Hello, World."))
+    }
+
+    companion object {
+        val server = exampleServer()
+
+        @BeforeClass @JvmStatic
+        fun startServer() {
+            server.start()
+        }
+
+        @AfterClass @JvmStatic
+        fun stopServer() {
+            server.stop(0)
+        }
     }
 
     private fun getText(path: String) = server.uri.resolve(path).toURL()
