@@ -11,14 +11,29 @@ import org.junit.BeforeClass
 import org.junit.Test
 import java.io.FileNotFoundException
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
+import java.time.DateTimeException
+import java.time.LocalDate
 
+// An application-specific mapping between parsed URL elements and typed data
+object LocalDate : Projection3<Int,Int,Int,LocalDate> {
+    override fun fromParts(t1: Int, t2: Int, t3: Int) =
+            try { LocalDate.of(t1, t2, t3) } catch (e: DateTimeException) { null }
 
-// The routes
-val uppercase = "uppercase" / string where { s -> s.any(Char::isLowerCase) }
+    override fun toParts(u: LocalDate) =
+            u.year to u.monthValue to u.dayOfMonth
+}
+
+// Route components
+val year = int
+val month = int
+val day = int
+val date = year/month/day asA LocalDate
+
+// Application routes
 val reverse = "reverse" / string
 val negate = "negate" / int
 val negative = "negative" / int
-
+val weekday = "weekday" / date
 
 // The server that uses the routes
 val server = HttpServer(0) { exchange ->
@@ -32,17 +47,18 @@ val server = HttpServer(0) { exchange ->
                 exchange.sendRedirect(negate.path(i))
             },
 
-            uppercase by { s ->
-                exchange.sendString(s.toUpperCase())
-            },
-
             reverse by { s ->
                 exchange.sendString(s.reversed())
+            },
+
+            weekday by { date ->
+                exchange.sendString(date.dayOfWeek.name.toLowerCase())
             },
 
             root by {
                 exchange.sendString("Hello, World.")
             }
+
 
     ) otherwise {
         exchange.sendError(HTTP_NOT_FOUND)
@@ -78,18 +94,19 @@ class HttpRoutingExample {
     }
 
     @Test
-    fun uppercase() {
-        assertThat(getText("/uppercase/hello"), equalTo("HELLO"))
-    }
-
-    @Test(expected = FileNotFoundException::class)
-    fun cannot_uppercase_something_uppercase() {
-        getText("/uppercase/HELLO")
+    fun reverse() {
+        assertThat(getText("/reverse/hello%20world"), equalTo("dlrow olleh"))
     }
 
     @Test
-    fun reverse() {
-        assertThat(getText("/reverse/hello%20world"), equalTo("dlrow olleh"))
+    fun weekday() {
+        assertThat(getText("/weekday/2016/02/29"), equalTo("monday"))
+        assertThat(getText("/weekday/2016/03/01"), equalTo("tuesday"))
+    }
+
+    @Test(expected = FileNotFoundException::class)
+    fun bad_dates_not_found() {
+        getText("/weekday/2016/02/30")
     }
 
     @Test
