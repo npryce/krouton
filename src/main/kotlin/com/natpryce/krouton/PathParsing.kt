@@ -39,8 +39,7 @@ fun joinPath(pathElements: List<String>) = "/" + pathElements.map(::encodePathEl
 object root : UrlScheme<Unit> {
     override fun pathElementsFrom(value: Unit) = emptyList<String>()
 
-    override fun parsePathElements(pathElements: List<String>) =
-            if (pathElements.isEmpty()) Pair(Unit,pathElements) else null
+    override fun parsePathElements(pathElements: List<String>) = Pair(Unit, pathElements)
 }
 
 

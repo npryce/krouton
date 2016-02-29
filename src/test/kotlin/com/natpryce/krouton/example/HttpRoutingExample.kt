@@ -2,6 +2,8 @@ package com.natpryce.krouton.example
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.isEmptyString
+import com.natpryce.hamkrest.present
 import com.natpryce.krouton.*
 import com.natpryce.krouton.simple.by
 import com.natpryce.krouton.simple.otherwise
@@ -13,6 +15,7 @@ import java.io.FileNotFoundException
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.time.DateTimeException
 import java.time.LocalDate
+import java.time.LocalDate.now
 
 // An application-specific mapping between parsed URL elements and typed data
 object LocalDate : Projection3<Int,Int,Int,LocalDate> {
@@ -34,6 +37,7 @@ val reverse = "reverse" / string
 val negate = "negate" / int
 val negative = "negative" / int
 val weekday = "weekday" / date
+val weekdayToday = root / "weekday" / "today"
 
 // The server that uses the routes
 val server = HttpServer(0) { exchange ->
@@ -53,6 +57,11 @@ val server = HttpServer(0) { exchange ->
 
             weekday by { date ->
                 exchange.sendString(date.dayOfWeek.name.toLowerCase())
+            },
+
+            weekdayToday by {
+                // Note - reverse routing using user-defined projection
+                exchange.sendRedirect(weekday.path(now()))
             },
 
             root by {
@@ -102,6 +111,11 @@ class HttpRoutingExample {
     fun weekday() {
         assertThat(getText("/weekday/2016/02/29"), equalTo("monday"))
         assertThat(getText("/weekday/2016/03/01"), equalTo("tuesday"))
+    }
+
+    @Test
+    fun weekday_today() {
+        assertThat(getText("/weekday/today"), present(!isEmptyString))
     }
 
     @Test(expected = FileNotFoundException::class)
