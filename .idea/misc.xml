@@ -2,6 +2,10 @@
 <project version="4">
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="org.junit.AfterClass" />
+      <item index="1" class="java.lang.String" itemvalue="org.junit.BeforeClass" />
+    </list>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
