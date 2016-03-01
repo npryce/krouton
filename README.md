@@ -1,5 +1,7 @@
-Typesafe, compositional routing and reverse routing for web apps and HTTP microservices
+# Krouton
 
+
+Typesafe, compositional routing and reverse routing for web apps and HTTP microservices
 
 ## Principles
 
@@ -12,7 +14,8 @@ Separate reactive code from routing policy
 * Routing policy defined by constants (immutable objects)
 * Routing done by functions/closures/objects
 
-Compositional: routes are composed from primitive parts, and user-defined routes can be used in exactly the same way as the predefined primitives.
+Compositional: routes are composed from primitive parts, and user-defined routes can be used in 
+exactly the same way as the predefined primitives.
 
 Can be used with any HTTP server library.
 
@@ -31,7 +34,7 @@ Can be used with any HTTP server library.
 * Prefixion: `<T> String / UrlScheme<T> -> UrlScheme<T>`
 * Suffixion: `<T> UrlScheme<T> / String -> UrlScheme<T>`
 * Restriction: `<T> UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
-* Projection: `<T,U> UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>` 
+* Projection: `<T,U> UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
 
 
 ## Opinionated
