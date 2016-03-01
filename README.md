@@ -1,7 +1,13 @@
 # Krouton
 
 
-Typesafe, compositional routing and reverse routing for web apps and HTTP microservices
+Typesafe, compositional routing and reverse routing for web apps and HTTP microservices for Kotlin.
+
+
+## Examples
+
+ * [Simple routing within the Sun JDK HttpServer](src/test/kotlin/com/natpryce/krouton/example/HttpRoutingExample.kt)
+ * [Routing by path and method, using Kotlin's `when` expression](src/test/kotlin/com/natpryce/krouton/example/CountersExample.kt)
 
 ## Principles
 
