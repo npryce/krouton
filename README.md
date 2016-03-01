@@ -14,6 +14,7 @@ Separate reactive code from routing policy
 
 Compositional: routes are composed from primitive parts, and user-defined routes can be used in exactly the same way as the predefined primitives.
 
+Can be used with any HTTP server library.
 
 ## Routing Policy Operations
 
@@ -23,11 +24,14 @@ Compositional: routes are composed from primitive parts, and user-defined routes
 
 ## Route Algebra
 
-* Composition: `UrlScheme<T> / UrlScheme<U> -> UrlScheme<(T,U)>`
-* Prefixion: `String / UrlScheme<T> -> UrlScheme<T>`
-* Suffixion: `UrlScheme<T> / String -> UrlScheme<T>`
-* Restriction: `UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
-* Projection: `UrlScheme<T> asA Mapping<T,U> -> UrlScheme<U>` 
+* Composition: 
+    * `<T,U> UrlScheme<T> / UrlScheme<U> -> UrlScheme<(T,U)>`
+    * `<T> UrlScheme<Unit> / UrlScheme<T> -> UrlScheme<T>`
+    * `<T> UrlScheme<T> / UrlScheme<Unit> -> UrlScheme<T>`
+* Prefixion: `<T> String / UrlScheme<T> -> UrlScheme<T>`
+* Suffixion: `<T> UrlScheme<T> / String -> UrlScheme<T>`
+* Restriction: `<T> UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
+* Projection: `<T,U> UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>` 
 
 
 ## Opinionated
