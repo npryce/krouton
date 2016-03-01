@@ -14,6 +14,16 @@ infix fun <T> UrlScheme<T>.by(handler: (T) -> Unit) = fun(path: List<String>): B
     }
 }
 
+infix fun UrlScheme<Unit>.by(handler: () -> Unit) = fun(path: List<String>): Boolean {
+    val parsed = parse(path)
+    if (parsed == null) {
+        return false
+    } else {
+        handler()
+        return true
+    }
+}
+
 fun routeOn(path: String, vararg routes: (List<String>) -> Boolean) = routeOn(splitPath(path), *routes)
 
 fun <Criteria> routeOn(criteria: Criteria, vararg routes: (Criteria) -> Boolean): Boolean {

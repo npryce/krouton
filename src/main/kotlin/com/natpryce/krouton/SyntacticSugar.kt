@@ -1,10 +1,27 @@
 package com.natpryce.krouton
 
+@JvmName("composeStringT")
 operator fun <T> String.div(rest: UrlScheme<T>) : UrlScheme<T> = PrefixedUrlScheme(this, rest)
 
+@JvmName("composeTString")
 operator fun <T> UrlScheme<T>.div(suffix: String) : UrlScheme<T> = SuffixedUrlScheme(this, suffix)
 
+@JvmName("composeTU")
 operator fun <T,U> UrlScheme<T>.div(rest: UrlScheme<U>) : UrlScheme<Pair<T,U>> = AppendedUrlScheme(this, rest)
+
+@JvmName("composeUnitT")
+operator fun <T> UrlScheme<Unit>.div(rest: UrlScheme<T>) : UrlScheme<T> =
+        Projection2UrlScheme(AppendedUrlScheme(this,rest), object : Projection2<Unit, T, T> {
+            override fun fromParts(t1: Unit, t2: T): T? = t2
+            override fun toParts(u: T): Pair<Unit, T> = Pair(Unit, u)
+        })
+
+@JvmName("composeTUnit")
+operator fun <T> UrlScheme<T>.div(rest: UrlScheme<Unit>) : UrlScheme<T> =
+        Projection2UrlScheme(AppendedUrlScheme(this, rest), object: Projection2<T, Unit, T> {
+            override fun fromParts(t1: T, t2: Unit): T? = t1
+            override fun toParts(u: T): Pair<T, Unit> = Pair(u, Unit)
+        })
 
 infix fun <T> UrlScheme<T>.where(p: (T)->Boolean): UrlScheme<T> = RestrictedUrlScheme<T>(this, p)
 
