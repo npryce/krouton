@@ -62,7 +62,7 @@ fun exampleServer(port: Int = 0) = HttpServer(port) { exchange ->
             },
 
             reversed by { s ->
-                exchange.sendRedirect(reversed.path(s))
+                exchange.sendRedirect(reverse.path(s))
             },
 
             weekday by { date ->
