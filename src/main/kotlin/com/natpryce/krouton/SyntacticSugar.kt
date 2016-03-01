@@ -36,3 +36,6 @@ infix fun <T1,T2,T3,U> UrlScheme<Pair<Pair<T1,T2>,T3>>.asA(projection: Projectio
 
 infix fun <T1,T2,T3,T4,U> UrlScheme<Pair<Pair<Pair<T1,T2>,T3>,T4>>.asA(projection: Projection4<T1,T2,T3,T4,U>): UrlScheme<U> =
         Projection4UrlScheme<T1,T2,T3,T4,U>(this, projection)
+
+operator fun <T> UrlScheme<T>.unaryPlus() : UrlScheme<List<T>> = RepeatedUrlScheme(this)
+

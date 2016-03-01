@@ -2,6 +2,7 @@ package com.natpryce.krouton
 
 import com.google.common.net.UrlEscapers
 import java.net.URI
+import java.util.*
 
 
 interface UrlScheme<T> {
@@ -108,6 +109,23 @@ class RestrictedUrlScheme<T>(private val base: UrlScheme<T>, private val p: (T) 
             base.parsePathElements(pathElements)?.flatMapFirst { if (p(it)) it else null }
 
     override fun pathElementsFrom(value: T) = base.pathElementsFrom(value)
+}
+
+class RepeatedUrlScheme<T>(private val elementScheme: UrlScheme<T>) : UrlScheme<List<T>> {
+    override fun parsePathElements(pathElements: List<String>) = parse(ArrayList<T>(), pathElements)
+
+    override fun pathElementsFrom(value: List<T>) = value.flatMap { elementScheme.pathElementsFrom(it) }
+
+    private tailrec fun parse(accumulator: MutableList<T>, pathElements: List<String>) : Pair<List<T>,List<String>> {
+        val parsed = elementScheme.parsePathElements(pathElements)
+        return when(parsed) {
+            null -> Pair(accumulator, pathElements)
+            else -> { val (element, rest) = parsed
+                accumulator.add(element)
+                parse(accumulator, rest)
+            }
+        }
+    }
 }
 
 
