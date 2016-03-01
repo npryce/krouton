@@ -34,6 +34,7 @@ val date = year/month/day asA _LocalDate
 
 // Application routes
 val reverse = "reverse" / string
+val reversed = "reversed" / string
 val negate = "negate" / int
 val negative = "negative" / int
 val weekday = "weekday" / date
@@ -43,6 +44,10 @@ val weekdayToday = root / "weekday" / "today"
 // The server that uses the routes
 fun exampleServer(port: Int = 0) = HttpServer(port) { exchange ->
     routeOn(exchange.requestURI.rawPath,
+            root by {
+                exchange.sendString("Hello, World.")
+            },
+
             negate by { i ->
                 exchange.sendString((-i).toString())
             },
@@ -56,6 +61,10 @@ fun exampleServer(port: Int = 0) = HttpServer(port) { exchange ->
                 exchange.sendString(s.reversed())
             },
 
+            reversed by { s ->
+                exchange.sendRedirect(reversed.path(s))
+            },
+
             weekday by { date ->
                 exchange.sendString(date.dayOfWeek.name.toLowerCase())
             },
@@ -63,12 +72,7 @@ fun exampleServer(port: Int = 0) = HttpServer(port) { exchange ->
             weekdayToday by {
                 // Note - reverse routing using user-defined projection
                 exchange.sendRedirect(weekday.path(now()))
-            },
-
-            root by {
-                exchange.sendString("Hello, World.")
             }
-
 
     ) otherwise {
         exchange.sendError(HTTP_NOT_FOUND)
