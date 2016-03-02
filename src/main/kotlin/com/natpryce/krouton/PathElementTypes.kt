@@ -23,6 +23,11 @@ object double : PathElement<Double>() {
             parse<Double, NumberFormatException>(element, String::toDouble)
 }
 
+inline fun <reified E : Enum<E>> enum(): UrlScheme<E> = object : PathElement<E>() {
+    override fun parsePathElement(element: String)
+            = try { java.lang.Enum.valueOf(E::class.java, element) } catch (e: IllegalArgumentException) { null }
+}
+
 object isoLocalDate : PathElement<LocalDate>() {
     private val format = DateTimeFormatter.ISO_LOCAL_DATE
 
