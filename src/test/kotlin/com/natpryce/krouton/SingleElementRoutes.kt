@@ -6,6 +6,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.present
 import org.junit.Test
 import java.time.LocalDate
+import java.util.*
 
 class SingleElementRoutes {
     @Test
@@ -65,5 +66,11 @@ class SingleElementRoutes {
         assertThat(axis.parse("/ddd"), absent())
 
         assertThat(axis.path(Axis.Z), equalTo("/Z"))
+    }
+
+    @Test
+    fun locales() {
+        assertThat(locale.parse("/fr-FR"), present(equalTo(Locale.FRANCE)))
+        assertThat(locale.path(Locale.FRANCE), equalTo("/fr-FR"))
     }
 }

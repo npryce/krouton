@@ -3,6 +3,7 @@ package com.natpryce.krouton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.util.*
 
 object string : PathElement<String>() {
     override fun parsePathElement(element: String) = element
@@ -37,3 +38,9 @@ object isoLocalDate : PathElement<LocalDate>() {
     override fun pathElementFrom(value: LocalDate) =
             value.format(format)
 }
+
+object locale : PathElement<Locale>() {
+    override fun parsePathElement(element: String) = Locale.forLanguageTag(element)
+    override fun pathElementFrom(value: Locale) = value.toLanguageTag()
+}
+
