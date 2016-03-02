@@ -3,6 +3,8 @@
 
 Typesafe, compositional routing and reverse routing for web apps and HTTP microservices for Kotlin.
 
+[![Build Status](https://travis-ci.org/npryce/krouton.svg?branch=master)](https://travis-ci.org/npryce/krouton)
+
 
 ## Examples
 
