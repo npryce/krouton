@@ -1,7 +1,7 @@
 package com.natpryce.krouton.example
 
+import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.*
 import com.natpryce.krouton.simple.by
 import com.natpryce.krouton.simple.otherwise
@@ -11,9 +11,9 @@ import com.sun.net.httpserver.HttpServer
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.HttpURLConnection.HTTP_BAD_METHOD
-import java.net.HttpURLConnection.HTTP_NOT_FOUND
+import java.net.HttpURLConnection.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -30,6 +30,7 @@ fun counterServer(port: Int = 0): HttpServer {
 
     val namedCounter = "counter" / string asA counterIn(counters)
     val namedCounterValue = namedCounter / int
+    val namedCounterCompareAndSet = namedCounter / "from" / int / "to" / int
 
     return HttpServer(port) { exchange ->
         routeOn(exchange.requestURI.path,
@@ -43,7 +44,7 @@ fun counterServer(port: Int = 0): HttpServer {
                         }
                     }
                 },
-                namedCounterValue by { val (counter, value) = it
+                namedCounterValue by { counter, value ->
                     when (exchange.requestMethod) {
                         "POST" -> {
                             exchange.sendInt(counter.addAndGet(value))
@@ -54,6 +55,18 @@ fun counterServer(port: Int = 0): HttpServer {
                         }
                         else -> {
                             exchange.sendError(HTTP_BAD_METHOD)
+                        }
+                    }
+                },
+                namedCounterCompareAndSet by { counter, fromValue, toValue ->
+                    when (exchange.requestMethod) {
+                        "POST", "PUT" -> {
+                            if (counter.compareAndSet(fromValue, toValue)) {
+                                exchange.sendOk()
+                            }
+                            else {
+                                exchange.sendError(HTTP_CONFLICT)
+                            }
                         }
                     }
                 }
@@ -78,33 +91,45 @@ class CountersTest {
 
     @Test
     fun counting() {
-        assertThat(http("PUT", "/counter/a/0"), equalTo(0))
-        assertThat(http("GET", "/counter/a"), equalTo(0))
-        assertThat(http("POST", "/counter/a/1"), equalTo(1))
-        assertThat(http("GET", "/counter/a"), equalTo(1))
-        assertThat(http("POST", "/counter/a/2"), equalTo(3))
-        assertThat(http("GET", "/counter/a"), equalTo(3))
-        assertThat(http("POST", "/counter/a/-3"), equalTo(0))
-        assertThat(http("GET", "/counter/a"), equalTo(0))
+        assertThat(http("PUT", "/counter/a/0"), equalTo("0"))
+        assertThat(http("GET", "/counter/a"), equalTo("0"))
+        assertThat(http("POST", "/counter/a/1"), equalTo("1"))
+        assertThat(http("GET", "/counter/a"), equalTo("1"))
+        assertThat(http("POST", "/counter/a/2"), equalTo("3"))
+        assertThat(http("GET", "/counter/a"), equalTo("3"))
+        assertThat(http("POST", "/counter/a/-3"), equalTo("0"))
+        assertThat(http("GET", "/counter/a"), equalTo("0"))
     }
 
     @Test
     fun can_set_count() {
         http("POST", "/counter/b/10")
         http("PUT", "/counter/b/2")
-        assertThat(http("GET", "/counter/b"), equalTo(2))
-        assertThat(http("POST", "/counter/b/5"), equalTo(7))
+        assertThat(http("GET", "/counter/b"), equalTo("2"))
+        assertThat(http("POST", "/counter/b/5"), equalTo("7"))
     }
 
     @Test
     fun defaults_to_zero_when_counting() {
-        assertThat(http("POST", "/counter/c/1"), equalTo(1))
+        assertThat(http("POST", "/counter/c/1"), equalTo("1"))
+    }
+
+    @Test
+    fun compare_and_set() {
+        http("PUT", "/counter/d/10")
+
+        http("POST", "/counter/d/from/10/to/20")
+        assertThat(http("GET", "/counter/d"), equalTo("20"))
+
+        assertThat({http("POST", "/counter/d/from/10/to/30")}, throws<IOException>(
+                has(Throwable::message, present(containsSubstring("response code: 409")))))
+        assertThat(http("GET", "/counter/d"), equalTo("20"))
     }
 
     private fun http(method: String, path: String) = (server.uri.resolve(path).toURL().openConnection() as HttpURLConnection)
             .run {
                 requestMethod = method
-                inputStream.reader().readText().trim().toInt()
+                inputStream.reader().readText().trim()
             }
 }
 
