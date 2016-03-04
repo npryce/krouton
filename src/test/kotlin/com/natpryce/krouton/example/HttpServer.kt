@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpServer
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import java.net.HttpURLConnection
+import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.InetSocketAddress
 import java.net.URI
 
@@ -27,9 +28,9 @@ fun HttpExchange.sendError(statusCode: Int) {
     close()
 }
 
-fun HttpExchange.sendRedirect(path: String) {
+fun HttpExchange.sendRedirect(path: String, status: Int = HTTP_MOVED_TEMP) {
     responseHeaders.add("Location", path)
-    sendResponseHeaders(HttpURLConnection.HTTP_MOVED_TEMP, 0)
+    sendResponseHeaders(status, 0)
     close()
 }
 
@@ -38,3 +39,4 @@ fun HttpServer(port: Int = 0, handler: (HttpExchange)->Unit) =
             createContext("/", handler)
         }
 
+val HTTP_FOUND = 307

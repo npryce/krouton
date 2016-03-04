@@ -26,6 +26,10 @@ fun <T> UrlScheme<T>.path(value: T): String {
     return joinPath(pathElements)
 }
 
+fun <T,U> UrlScheme<Pair<T,U>>.path(t : T, u: U) : String = path(t to u)
+fun <T,U,V> UrlScheme<Pair<Pair<T,U>,V>>.path(t : T, u: U, v: V) : String = path(t to u to v)
+fun <T,U,V,W> UrlScheme<Pair<Pair<Pair<T,U>,V>,W>>.path(t : T, u: U, v: V, w: W) : String = path(t to u to v to w)
+
 
 private fun decodePathElement(s: String) : String = URI(s).path
 
