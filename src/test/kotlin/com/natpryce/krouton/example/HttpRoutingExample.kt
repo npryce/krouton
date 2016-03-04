@@ -18,17 +18,15 @@ import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter
 
-// Route components
+// Components of the application's routes
 val year = int
 val month = int
 val day = int
-val date = year/month/day asA _LocalDate
+val date = year/month/day asA LocalDate_
 
-// Application routes
+// The application's routes
 val reverse = "reverse" / string
-
 val negate = "negate" / int
-
 val weekday = "weekday" / locale / date
 val weekdayToday = root / "weekday" / locale/ "today"
 
@@ -38,7 +36,7 @@ val reversed = "reversed" / string
 
 
 // An application-specific mapping between parsed URL elements and typed data
-object _LocalDate : Projection3<Int,Int,Int,LocalDate> {
+object LocalDate_ : Projection3<Int,Int,Int,LocalDate> {
     override fun fromParts(t1: Int, t2: Int, t3: Int) =
             try { LocalDate.of(t1, t2, t3) } catch (e: DateTimeException) { null }
 
