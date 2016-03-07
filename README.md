@@ -35,16 +35,16 @@ Can be used with any HTTP server library.
 * Reverse Routing: `UrlScheme<T>.path(T) -> String`
 
 
-## Route Algebra
+## Route Composition
 
-* Composition: 
+* Append: 
     * `<T,U> UrlScheme<T> / UrlScheme<U> -> UrlScheme<(T,U)>`
     * `<T> UrlScheme<Unit> / UrlScheme<T> -> UrlScheme<T>`
     * `<T> UrlScheme<T> / UrlScheme<Unit> -> UrlScheme<T>`
-* Prefixion: `<T> String / UrlScheme<T> -> UrlScheme<T>`
-* Suffixion: `<T> UrlScheme<T> / String -> UrlScheme<T>`
-* Restriction: `<T> UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
-* Projection: `<T,U> UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
+* Prefix: `<T> String / UrlScheme<T> -> UrlScheme<T>`
+* Suffix: `<T> UrlScheme<T> / String -> UrlScheme<T>`
+* Restrict: `<T> UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
+* Project: `<T,U> UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
 
 
 ## Opinionated
