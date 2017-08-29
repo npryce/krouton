@@ -9,8 +9,8 @@ import org.junit.Test
 class Prefixion {
     @Test
     fun route_prefixed_single_element() {
-        assertThat(("foo" / string).parse("/foo/bob"), present(equalTo("bob")))
-        assertThat(("bar" / int).parse("/bar/99"), present(equalTo(99)))
+        assertThat(("foo" / string).parse("/foo/bob"), equalTo("bob"))
+        assertThat(("bar" / int).parse("/bar/99"), equalTo(99))
     }
 
     @Test

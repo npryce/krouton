@@ -13,8 +13,8 @@ class Restriction {
     fun restricted_route() {
         assertThat(route.parse("/0"), absent())
         assertThat(route.parse("/10"), absent())
-        assertThat(route.parse("/11"), present(equalTo(11)))
-        assertThat(route.parse("/999"), present(equalTo(999)))
+        assertThat(route.parse("/11"), equalTo(11))
+        assertThat(route.parse("/999"), equalTo(999))
     }
 
     @Test

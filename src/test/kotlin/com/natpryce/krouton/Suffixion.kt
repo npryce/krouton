@@ -9,8 +9,8 @@ import org.junit.Test
 class Suffixion {
     @Test
     fun route_suffixed_single_element() {
-        assertThat((string / "foo").parse("/bob/foo"), present(equalTo("bob")))
-        assertThat((int / "bar").parse("/99/bar"), present(equalTo(99)))
+        assertThat((string / "foo").parse("/bob/foo"), equalTo("bob"))
+        assertThat((int / "bar").parse("/99/bar"), equalTo(99))
     }
 
     @Test

@@ -24,7 +24,7 @@ infix fun UrlScheme<Unit>.by(handler: () -> Unit) = fun(path: List<String>): Boo
     }
 }
 
-infix fun <T,U> UrlScheme<Pair<T,U>>.by(handler: (T,U)->Unit) = fun(path: List<String>): Boolean {
+infix fun <T,U> UrlScheme<Pair<T, U>>.by(handler: (T, U)->Unit) = fun(path: List<String>): Boolean {
     val parsed = parse(path)
     if (parsed == null) {
         return false
@@ -34,7 +34,7 @@ infix fun <T,U> UrlScheme<Pair<T,U>>.by(handler: (T,U)->Unit) = fun(path: List<S
     }
 }
 
-infix fun <T,U,V> UrlScheme<Pair<Pair<T,U>,V>>.by(handler: (T,U,V)->Unit) = fun(path: List<String>): Boolean {
+infix fun <T,U,V> UrlScheme<Pair<Pair<T, U>, V>>.by(handler: (T, U, V)->Unit) = fun(path: List<String>): Boolean {
     val parsed = parse(path)
     if (parsed == null) {
         return false

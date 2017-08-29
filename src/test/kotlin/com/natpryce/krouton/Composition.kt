@@ -8,8 +8,8 @@ import org.junit.Test
 class Composition {
     @Test
     fun combined_routes() {
-        assertThat((int / string).parse("/9/alice"), present(equalTo(Pair(9, "alice"))))
-        assertThat(("foo" / string / int).parse("/foo/bob/10"), present(equalTo(Pair("bob", 10))))
+        assertThat((int / string).parse("/9/alice"), equalTo(Pair(9, "alice")))
+        assertThat(("foo" / string / int).parse("/foo/bob/10"), equalTo(Pair("bob", 10)))
     }
 
     @Test
@@ -19,13 +19,13 @@ class Composition {
 
     @Test
     fun root_acts_as_a_zero_path() {
-        assertThat((root / string).parse("/foo"), present(equalTo("foo")))
-        assertThat((string / root).parse("/foo"), present(equalTo("foo")))
-        assertThat((root / string / root).parse("/foo"), present(equalTo("foo")))
+        assertThat((root / string).parse("/foo"), equalTo("foo"))
+        assertThat((string / root).parse("/foo"), equalTo("foo"))
+        assertThat((root / string / root).parse("/foo"), equalTo("foo"))
     }
     @Test
     fun stress_test() {
         val crazyScheme: UrlScheme<String> = "first"/root/"mid1"/string/"mid2"/root/"last"
-        assertThat(crazyScheme.parse("/first/mid1/foo/mid2/last"), present(equalTo("foo")))
+        assertThat(crazyScheme.parse("/first/mid1/foo/mid2/last"), equalTo("foo"))
     }
 }

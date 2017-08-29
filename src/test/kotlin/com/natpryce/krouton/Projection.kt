@@ -17,7 +17,7 @@ class Projection {
 
     @Test
     fun route_for_abstracted_scalar() {
-        assertThat(timestamps.parse("/30"), present(equalTo(Date(30))))
+        assertThat(timestamps.parse("/30"), equalTo(Date(30)))
     }
 
     @Test
@@ -37,7 +37,7 @@ class Projection {
 
     @Test
     fun route_for_abstracted_pair() {
-        assertThat(scores.parse("/bob/30"), present(equalTo(Score("bob", 30))))
+        assertThat(scores.parse("/bob/30"), equalTo(Score("bob", 30)))
     }
 
     @Test
@@ -59,8 +59,8 @@ class Projection {
 
     @Test
     fun route_for_composed_abstractions() {
-        assertThat(timestampedScores.parse("/at/1000/score/alice/20"), present(equalTo(
-                TimestampedScore(Date(1000), Score("alice", 20)))))
+        assertThat(timestampedScores.parse("/at/1000/score/alice/20"), equalTo(
+                TimestampedScore(Date(1000), Score("alice", 20))))
     }
 
     @Test
