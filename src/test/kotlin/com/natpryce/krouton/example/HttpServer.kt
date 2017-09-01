@@ -2,8 +2,6 @@ package com.natpryce.krouton.example
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
-import org.junit.AfterClass
-import org.junit.BeforeClass
 import java.net.HttpURLConnection
 import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.InetSocketAddress
@@ -35,7 +33,7 @@ fun HttpExchange.sendRedirect(path: String, status: Int = HTTP_MOVED_TEMP) {
 }
 
 fun HttpServer(port: Int = 0, handler: (HttpExchange)->Unit) =
-        HttpServer.create(InetSocketAddress(port), 0).apply {
+        HttpServer.create(InetSocketAddress("127.0.0.1", port), 0).apply {
             createContext("/", handler)
         }
 
