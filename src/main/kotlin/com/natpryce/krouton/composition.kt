@@ -1,40 +1,44 @@
 package com.natpryce.krouton
 
-@JvmName("prefix")
-operator fun <T> String.div(rest: UrlScheme<T>) : UrlScheme<T> = PrefixedUrlScheme(this, rest)
+operator fun <T> UrlScheme<T>.plus(fixedElement: String): UrlScheme<T> =
+    this + FixedPathElement(fixedElement)
 
-@JvmName("suffix")
-operator fun <T> UrlScheme<T>.div(suffix: String) : UrlScheme<T> = SuffixedUrlScheme(this, suffix)
+@JvmName("plusToTStack")
+operator fun <T : HStack, U> UrlScheme<T>.plus(rest: UrlScheme<U>): UrlScheme<HCons<U, T>> = AppendedUrlScheme(this, rest)
 
-@JvmName("append")
-operator fun <T,U> UrlScheme<T>.div(rest: UrlScheme<U>) : UrlScheme<Pair<T, U>> = AppendedUrlScheme(this, rest)
+@JvmName("plusPrefix")
+operator fun <T> UrlScheme<Empty>.plus(rest: UrlScheme<T>): UrlScheme<T> =
+    object : UrlScheme<T> {
+        override fun pathElementsFrom(value: T) =
+            this@plus.pathElementsFrom(Empty) + rest.pathElementsFrom(value)
+        
+        override fun parsePathElements(pathElements: List<String>) =
+            this@plus.parsePathElements(pathElements)
+                ?.let { (_, restPathElements) -> rest.parsePathElements(restPathElements) }
+    }
 
-@JvmName("prefix")
-operator fun <T> UrlScheme<Unit>.div(rest: UrlScheme<T>) : UrlScheme<T> =
-        Projection2UrlScheme(AppendedUrlScheme(this,rest), object : Projection2<Unit, T, T> {
-            override fun fromParts(t1: Unit, t2: T): T? = t2
-            override fun toParts(u: T): Pair<Unit, T> = Pair(Unit, u)
-        })
+@JvmName("plusSuffix")
+operator fun <T> UrlScheme<T>.plus(rest: UrlScheme<Empty>): UrlScheme<T> =
+    object : UrlScheme<T> {
+        override fun pathElementsFrom(value: T) =
+            this@plus.pathElementsFrom(value) + rest.pathElementsFrom(Empty)
+    
+        override fun parsePathElements(pathElements: List<String>) =
+            this@plus.parsePathElements(pathElements)
+                ?.let { (value, restPathElements) -> rest.parsePathElements(restPathElements)
+                    ?.let { (_, remainderPathElements) -> Pair(value, remainderPathElements) }
+                }
+    }
 
-@JvmName("suffix")
-operator fun <T> UrlScheme<T>.div(rest: UrlScheme<Unit>) : UrlScheme<T> =
-        Projection2UrlScheme(AppendedUrlScheme(this, rest), object: Projection2<T, Unit, T> {
-            override fun fromParts(t1: T, t2: Unit): T? = t1
-            override fun toParts(u: T): Pair<T, Unit> = Pair(u, Unit)
-        })
+@JvmName("plusRaw")
+operator fun <T,U> UrlScheme<T>.plus(rest: UrlScheme<U>): UrlScheme<HStack2<U,T>> =
+    AppendedUrlScheme(this asA tStack(), rest)
 
-infix fun <T> UrlScheme<T>.where(p: (T)->Boolean): UrlScheme<T> = RestrictedUrlScheme<T>(this, p)
+infix fun <T> UrlScheme<T>.where(p: (T) -> Boolean): UrlScheme<T> = RestrictedUrlScheme<T>(this, p)
 
-infix fun <T1,U> UrlScheme<T1>.asA(projection: Projection1<T1,U>): UrlScheme<U> =
-        Projection1UrlScheme<T1,U>(this, projection)
+infix fun <Parts, Mapped> UrlScheme<Parts>.asA(projection: Projection<Parts, Mapped>): UrlScheme<Mapped> =
+    ProjectionUrlScheme<Parts, Mapped>(this, projection)
 
-infix fun <T1,T2,U> UrlScheme<Pair<T1, T2>>.asA(projection: Projection2<T1,T2,U>): UrlScheme<U> =
-        Projection2UrlScheme<T1,T2,U>(this, projection)
+operator fun <T> UrlScheme<T>.unaryPlus(): UrlScheme<List<T>> = repeated()
 
-infix fun <T1,T2,T3,U> UrlScheme<Pair<Pair<T1, T2>, T3>>.asA(projection: Projection3<T1,T2,T3,U>): UrlScheme<U> =
-        Projection3UrlScheme<T1,T2,T3,U>(this, projection)
-
-infix fun <T1,T2,T3,T4,U> UrlScheme<Pair<Pair<Pair<T1, T2>, T3>, T4>>.asA(projection: Projection4<T1,T2,T3,T4,U>): UrlScheme<U> =
-        Projection4UrlScheme<T1,T2,T3,T4,U>(this, projection)
-
-operator fun <T> UrlScheme<T>.unaryPlus() : UrlScheme<List<T>> = RepeatedUrlScheme(this)
+fun <T> UrlScheme<T>.repeated() = RepeatedUrlScheme(this)
