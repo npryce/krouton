@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import org.junit.Test
 
 
-class EncodingAndDecoding {
+class EncodingAndDecodingTests {
     @Test
     fun percent_encodes_and_decodes_path_elements() {
         assertEncodeDecode(listOf("hits", "zz top"), "/hits/zz%20top")

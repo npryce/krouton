@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.junit.Test
 
-class Composition {
+class CompositionTests {
     @Test
     fun route_prefixed_single_element() {
         assertThat((root + "foo" + string).parse("/foo/bob"), equalTo("bob"))
@@ -24,6 +24,26 @@ class Composition {
         assertThat((root + "b" + int).parse("/b/not-an-int"), absent())
         assertThat((root + "c" + int).parse("/c/10/unwanted-suffix"), absent())
         assertThat((root + "d" + int).parse("/c/10"), absent())
+    }
+    
+    @Test
+    fun route_suffixed_single_element() {
+        assertThat((string + "foo").parse("/bob/foo"), equalTo("bob"))
+        assertThat((int + "bar").parse("/99/bar"), equalTo(99))
+    }
+    
+    @Test
+    fun reverse_route_for_suffixed_single_element() {
+        assertThat((string + "bob").path("xxx"), equalTo("/xxx/bob"))
+        assertThat((int + "foo").path(72), equalTo("/72/foo"))
+    }
+    
+    @Test
+    fun route_suffixed_single_element_when_failing() {
+        assertThat((int + "a").parse("/10"), absent())
+        assertThat((int + "b").parse("/not-an-int/b"), absent())
+        assertThat((int + "c").parse("/unwanted-prefix/10/c"), absent())
+        assertThat((int + "d").parse("/10/unwanted-suffix"), absent())
     }
     
     @Test

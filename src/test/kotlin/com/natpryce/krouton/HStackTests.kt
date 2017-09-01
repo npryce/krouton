@@ -2,7 +2,7 @@ package com.natpryce.krouton
 
 import org.junit.Test
 
-class HStackDeconstruction {
+class HStackTests {
     @Test
     fun `deconstructs_typed_stacks_back_into_order`() {
         val x: HStack4<Int, String, Int, Int> = Empty + 1 + 2 + "three" + 4

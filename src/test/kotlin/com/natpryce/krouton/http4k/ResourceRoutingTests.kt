@@ -19,7 +19,7 @@ import org.http4k.core.Status.Companion.OK
 import org.junit.Test
 
 
-class ResourceRouting {
+class ResourceRoutingTests {
     val incrementInt = root + "inc" + int
     val incrementDouble = root + "inc" + double
     

@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.junit.Test
 
-class Repetition {
+class RepetitionTests {
     @Test
     fun route_repeating_single_string() {
         assertThat((root + string.repeated()).parse("/x/y/z"), equalTo(listOf("x", "y", "z")))

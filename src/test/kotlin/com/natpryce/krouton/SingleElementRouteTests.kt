@@ -8,7 +8,7 @@ import org.junit.Test
 import java.time.LocalDate
 import java.util.*
 
-class SingleElementRoutes {
+class SingleElementRouteTests {
     @Test
     fun strings() {
         assertThat(string.parse("/foo"), equalTo("foo"))
