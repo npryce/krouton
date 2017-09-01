@@ -13,3 +13,8 @@ internal inline fun <T, reified X : Exception> parse(s: String, parser: (String)
             }
         }
 
+internal inline fun <T, U> List<T>.firstNonNull(f: (T) -> U?): U? {
+    forEach { t -> f(t)?.let { return it } }
+    return null
+}
+
