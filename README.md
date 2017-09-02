@@ -10,8 +10,7 @@ Typesafe, compositional routing and reverse routing for web apps and HTTP micros
 
 ## Examples
 
- * [Simple routing within the Sun JDK HttpServer](src/test/kotlin/com/natpryce/krouton/example/HttpRoutingExample.kt)
- * [Routing by path and method, using Kotlin's `when` expression](src/test/kotlin/com/natpryce/krouton/example/CountersExample.kt)
+ * [Routing and reverse routing with HTTP4K](src/test/kotlin/com/natpryce/krouton/example/HttpRoutingExample.kt)
 
 ## Principles
 
@@ -27,7 +26,7 @@ Separate reactive code from routing policy
 Compositional: routes are composed from primitive parts, and user-defined routes can be used in 
 exactly the same way as the predefined primitives.
 
-Can be used with any HTTP server library.
+Can be used with any HTTP server library, but a convenient "DSL" API is provided for [HTTP4K](https://http4k.org).
 
 ## Routing Policy Operations
 
@@ -38,14 +37,13 @@ Can be used with any HTTP server library.
 ## Route Composition
 
 * Append: 
-    * `<T,U> UrlScheme<T> / UrlScheme<U> -> UrlScheme<(T,U)>`
-    * `<T> UrlScheme<Unit> / UrlScheme<T> -> UrlScheme<T>`
-    * `<T> UrlScheme<T> / UrlScheme<Unit> -> UrlScheme<T>`
-* Prefix: `<T> String / UrlScheme<T> -> UrlScheme<T>`
-* Suffix: `<T> UrlScheme<T> / String -> UrlScheme<T>`
-* Restrict: `<T> UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
-* Project: `<T,U> UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
-
+    * `UrlScheme<T> + UrlScheme<U> -> UrlScheme<(T,U)>`
+    * `UrlScheme<Empty> / UrlScheme<T> -> UrlScheme<T>`
+    * `UrlScheme<T> / UrlScheme<Empty> -> UrlScheme<T>`
+* Prefix: `root + String + UrlScheme<T> -> UrlScheme<T>`
+* Suffix: `UrlScheme<T> + String -> UrlScheme<T>`
+* Restrict: `UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
+* Project: `UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
 
 ## Opinionated
 
