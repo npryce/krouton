@@ -13,21 +13,26 @@ import com.natpryce.krouton.asA
 import com.natpryce.krouton.component1
 import com.natpryce.krouton.component2
 import com.natpryce.krouton.component3
+import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.int
 import com.natpryce.krouton.locale
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
-import com.natpryce.krouton.simple.by
-import com.natpryce.krouton.simple.otherwise
-import com.natpryce.krouton.simple.routeOn
 import com.natpryce.krouton.string
+import org.http4k.core.Method.GET
+import org.http4k.core.Response
+import org.http4k.core.Status
+import org.http4k.core.Status.Companion.FOUND
+import org.http4k.core.Status.Companion.MOVED_PERMANENTLY
+import org.http4k.core.Status.Companion.OK
+import org.http4k.server.SunHttp
+import org.http4k.server.asServer
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import java.io.FileNotFoundException
-import java.net.HttpURLConnection.HTTP_MOVED_PERM
-import java.net.HttpURLConnection.HTTP_NOT_FOUND
+import java.net.URI
 import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.LocalDate.now
@@ -71,42 +76,43 @@ val reversed = root + "reversed" + string
 
 
 // The server that uses the routes
-fun exampleServer(port: Int = 0) = HttpServer(port) { exchange ->
-    routeOn(exchange.requestURI.rawPath,
-        root by {
-            exchange.sendString("Hello, World.")
-        },
-
-        negate by { i ->
-            exchange.sendString((-i).toString())
-        },
-
-        negative by { i ->
-            // Note - reverse routing from integer to URL path
-            exchange.sendRedirect(negate.path(i), HTTP_MOVED_PERM)
-        },
-
-        reverse by { s ->
-            exchange.sendString(s.reversed())
-        },
-
-        reversed by { s ->
-            exchange.sendRedirect(reverse.path(s), HTTP_MOVED_PERM)
-        },
-
-        weekday by { (locale, date) ->
-            exchange.sendString(date.format(DateTimeFormatter.ofPattern("EEEE", locale)))
-        },
-
-        weekdayToday by { locale ->
-            // Note - reverse routing using user-defined projection
-            exchange.sendRedirect(weekday.path(Empty + locale + now()), HTTP_FOUND)
-        }
-
-    ) otherwise {
-        exchange.sendError(HTTP_NOT_FOUND)
+fun exampleServer() = resources {
+    root by {
+        GET { ok("Hello, World.") }
+    }
+    
+    negate by {
+        GET { i -> ok((-i).toString()) }
+    }
+    
+    negative by {
+        // Note - reverse routing from integer to URL path
+        GET { i -> redirect(MOVED_PERMANENTLY, negate.path(i)) }
+    }
+    
+    reverse by {
+        GET { s -> ok(s.reversed()) }
+    }
+    
+    reversed by {
+        GET { s -> redirect(MOVED_PERMANENTLY, reverse.path(s)) }
+    }
+    
+    weekday by {
+        GET { (locale, date) -> ok(date.format(DateTimeFormatter.ofPattern("EEEE", locale))) }
+    }
+    
+    weekdayToday by {
+        /* Note - reverse routing using user-defined projection*/
+        GET { locale -> redirect(FOUND, weekday.path(Empty + locale + now())) }
     }
 }
+
+private fun ok(s: String) =
+    Response(OK).body(s)
+
+private fun redirect(status: Status, location: String) =
+    Response(status).header("Location", location)
 
 
 class HttpRoutingExample {
@@ -114,58 +120,61 @@ class HttpRoutingExample {
     fun negate() {
         assertThat(getText("/negate/100"), equalTo("-100"))
     }
-
+    
     @Test
     fun negative_redirects_to_negate() {
         assertThat(getText("/negative/20"), equalTo("-20"))
     }
-
+    
     @Test
     fun reverse() {
         assertThat(getText("/reverse/hello%20world"), equalTo("dlrow olleh"))
     }
-
+    
     @Test
     fun weekday() {
         assertThat(getText("/weekday/en/2016/02/29"), equalTo("Monday"))
         assertThat(getText("/weekday/fr/2016/02/29"), equalTo("lundi"))
         assertThat(getText("/weekday/de/2016/02/29"), equalTo("Montag"))
-
+        
         assertThat(getText("/weekday/en/2016/03/01"), equalTo("Tuesday"))
     }
-
+    
     @Test
     fun weekday_today() {
         assertThat(getText("/weekday/en/today"), present(!isEmptyString))
     }
-
+    
     @Test(expected = FileNotFoundException::class)
     fun bad_dates_not_found() {
         getText("/weekday/2016/02/30")
     }
-
+    
     @Test
     fun root() {
         assertThat(getText("/"), equalTo("Hello, World."))
     }
-
+    
     companion object {
-        val server = exampleServer()
-
+        val port = 8965
+        val server = exampleServer().asServer(SunHttp(port))
+        val serverUri = URI("http://127.0.0.1:$port/")
+        
         @BeforeClass
         @JvmStatic
         fun startServer() {
             server.start()
         }
-
+        
         @AfterClass
         @JvmStatic
         fun stopServer() {
-            server.stop(0)
+            server.stop()
         }
     }
-
-    private fun getText(path: String) = server.uri.resolve(path).toURL()
-        .openStream().reader().use { it.readText().trim() }
-
+    
+    private fun getText(path: String): String {
+        return serverUri.resolve(path).toURL()
+            .openStream().reader().use { it.readText().trim() }
+    }
 }
