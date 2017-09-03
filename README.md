@@ -42,9 +42,8 @@ Query parameters are optional and are interpreted by the resource.
 
 * Append: 
     * `UrlScheme<T> + UrlScheme<U> -> UrlScheme<(T,U)>`
-    * `UrlScheme<Empty> / UrlScheme<T> -> UrlScheme<T>`
-    * `UrlScheme<T> / UrlScheme<Empty> -> UrlScheme<T>`
-* Prefix: `root + String + UrlScheme<T> -> UrlScheme<T>`
-* Suffix: `UrlScheme<T> + String -> UrlScheme<T>`
+    * `UrlScheme<Empty> + UrlScheme<T> -> UrlScheme<T>`
+    * `UrlScheme<T> + UrlScheme<Empty> -> UrlScheme<T>`
+* Append fixed path element: `UrlScheme<T> + String -> UrlScheme<T>`
 * Restrict: `UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
 * Project: `UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
