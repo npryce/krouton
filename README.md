@@ -7,7 +7,7 @@ Typesafe, compositional routing and reverse routing for [Kotlin](https://kotlinl
 [![Build Status](https://travis-ci.org/npryce/krouton.svg?branch=master)](https://travis-ci.org/npryce/krouton)
 [![Maven Central](https://img.shields.io/maven-central/v/com.natpryce/krouton.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.natpryce%22%20AND%20a%3A%22krouton%22)
 
-Krouton provides a routing API for [HTTP4K](https://http4k.org), but the core abstractions can be used with any web framework.
+Krouton provides a routing API for [HTTP4K](https://http4k.org), but the core abstractions can be used with any web server library.
 
 ## Examples
 
@@ -26,8 +26,6 @@ Separate reactive code from routing policy
 
 Compositional: routes are composed from primitive parts, and user-defined routes can be used in 
 exactly the same way as the predefined primitives.
-
-Can be used with any HTTP server library, but a convenient "DSL" API is provided for [HTTP4K](https://http4k.org).
 
 ## Routing Policy Operations
 
