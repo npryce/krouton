@@ -27,6 +27,11 @@ Separate reactive code from routing policy
 Compositional: routes are composed from primitive parts, and user-defined routes can be used in 
 exactly the same way as the predefined primitives.
 
+Mandatory aspects of a resource locator go in the path
+
+Query parameters are optional and are interpreted by the resource.
+
+
 ## Routing Policy Operations
 
 * Parsing: `UrlScheme<T>.parse(String) -> T?`
@@ -43,9 +48,3 @@ exactly the same way as the predefined primitives.
 * Suffix: `UrlScheme<T> + String -> UrlScheme<T>`
 * Restrict: `UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
 * Project: `UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
-
-## Opinionated
-
-* Mandatory aspects of a resource locator go in the path
-* All query parameters are optional
-
