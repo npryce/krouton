@@ -7,36 +7,38 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
 
-val string = object : PathElementType<String> {
+val string by object : PathElementType<String> {
     override fun parsePathElement(element: String) = element
 }
 
-val int = object : PathElementType<Int> {
+val int by object : PathElementType<Int> {
     override fun parsePathElement(element: String) =
         parse<Int, NumberFormatException>(element, String::toInt)
 }
 
-val long = object : PathElementType<Long> {
+val long by object : PathElementType<Long> {
     override fun parsePathElement(element: String) =
         parse<Long, NumberFormatException>(element, String::toLong)
 }
 
-val double = object : PathElementType<Double> {
+val double by object : PathElementType<Double> {
     override fun parsePathElement(element: String) =
         parse<Double, NumberFormatException>(element, String::toDouble)
 }
 
-inline fun <reified E : Enum<E>> enum(): PathElementType<E> = object : PathElementType<E> {
-    override fun parsePathElement(element: String)
-        = try {
-        java.lang.Enum.valueOf(E::class.java, element)
+inline fun <reified E : Enum<E>> enum(): VariablePathElement<E> {
+    val element by object : PathElementType<E> {
+        override fun parsePathElement(element: String) = try {
+            java.lang.Enum.valueOf(E::class.java, element)
+        }
+        catch (e: IllegalArgumentException) {
+            null
+        }
     }
-    catch (e: IllegalArgumentException) {
-        null
-    }
+    return element
 }
 
-val isoLocalDate = object : PathElementType<LocalDate> {
+val isoLocalDate by object : PathElementType<LocalDate> {
     private val format = DateTimeFormatter.ISO_LOCAL_DATE
     
     override fun parsePathElement(element: String) =
@@ -46,7 +48,7 @@ val isoLocalDate = object : PathElementType<LocalDate> {
         value.format(format)
 }
 
-val locale = object : PathElementType<Locale> {
+val locale by object : PathElementType<Locale> {
     override fun parsePathElement(element: String) = Locale.forLanguageTag(element)
     override fun pathElementFrom(value: Locale) = value.toLanguageTag()
 }

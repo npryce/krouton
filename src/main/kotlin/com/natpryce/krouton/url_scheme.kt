@@ -15,6 +15,8 @@ interface PathElementType<T> {
     fun pathElementFrom(value: T): String = value.toString()
 }
 
+
+
 interface UrlScheme<T> {
     fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>?
     fun pathElementsFrom(value: T): List<String>
@@ -61,7 +63,7 @@ object root : UrlScheme<Empty> {
     override fun monitoredPathElementsFrom(value: Empty) = emptyList<TemplatePathElement>()
 }
 
-sealed class PathElement<T> : UrlScheme<T> {
+abstract class PathElement<T> : UrlScheme<T> {
     final override fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>? =
         pathElements.firstOrNull()
             ?.let { parsePathElement(it) }
@@ -89,12 +91,18 @@ data class VariablePathElement<T>(val type: PathElementType<T>, val name: String
         if (monitored) Literal(pathElementFrom(value)) else Variable(name)
 }
 
-fun <T> PathElementType<T>.named(name: String) = VariablePathElement(type = this, name = name)
-
-operator fun <T> PathElementType<T>.getValue(obj: Any?, property: KProperty<*>): VariablePathElement<T> =
-    this.named(property.name)
+fun <T> VariablePathElement<T>.named(name: String) = copy(name = name)
 
 fun <T> VariablePathElement<T>.monitored() = copy(monitored = true)
+
+operator fun <T> PathElementType<T>.getValue(obj: Any?, property: KProperty<*>): VariablePathElement<T> =
+    VariablePathElement(this, property.name)
+
+
+operator fun <T> VariablePathElement<T>.getValue(obj: Any?, property: KProperty<*>): VariablePathElement<T> =
+    copy(name = property.name)
+
+
 
 class FixedPathElement(private val pathElement: String) : PathElement<Empty>() {
     override fun parsePathElement(element: String) = Empty.takeIf { element == pathElement }

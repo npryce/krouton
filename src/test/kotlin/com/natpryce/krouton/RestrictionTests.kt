@@ -7,7 +7,7 @@ import com.natpryce.hamkrest.present
 import org.junit.Test
 
 class RestrictionTests {
-    val route = int.named("i") where {it > 10}
+    val route = int where {it > 10}
 
     @Test
     fun restricted_route() {

@@ -32,7 +32,7 @@ class ProjectionTests {
         }
     }
 
-    val scores = string.named("name") + int.named("score") asA Score
+    val scores = string + int asA Score
 
     @Test
     fun route_for_abstracted_pair() {
