@@ -5,8 +5,7 @@ package com.natpryce.krouton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.*
-import kotlin.reflect.KProperty
+import java.util.Locale
 
 val string = object : PathElementType<String> {
     override fun parsePathElement(element: String) = element
