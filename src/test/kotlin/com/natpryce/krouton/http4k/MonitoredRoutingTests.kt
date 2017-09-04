@@ -5,8 +5,6 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.HStack2
 import com.natpryce.krouton.UrlScheme
 import com.natpryce.krouton.int
-import com.natpryce.krouton.monitored
-import com.natpryce.krouton.named
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root

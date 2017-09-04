@@ -17,7 +17,6 @@ import com.natpryce.krouton.getValue
 import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.int
 import com.natpryce.krouton.locale
-import com.natpryce.krouton.named
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
