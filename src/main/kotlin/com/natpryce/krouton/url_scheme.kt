@@ -19,6 +19,30 @@ fun <T> UrlScheme<T>.parse(splitPath: List<String>): T? =
 fun <T> UrlScheme<T>.path(value: T): String =
     joinPath(pathElementsFrom(value))
 
+@JvmName("pathHStack1")
+fun <A> UrlScheme<HStack1<A>>.path(a: A) =
+    path(Empty + a)
+
+@JvmName("pathHStack2")
+fun <A, B> UrlScheme<HStack2<B, A>>.path(a: A, b: B) =
+    path(Empty + a + b)
+
+@JvmName("pathHStack3")
+fun <A, B, C> UrlScheme<HStack3<C, B, A>>.path(a: A, b: B, c: C) =
+    path(Empty + a + b + c)
+
+@JvmName("pathHStack4")
+fun <A, B, C, D> UrlScheme<HStack4<D, C, B, A>>.path(a: A, b: B, c: C, d: D) =
+    path(Empty + a + b + c + d)
+
+@JvmName("pathHStack5")
+fun <A, B, C, D, E> UrlScheme<HStack5<E, D, C, B, A>>.path(a: A, b: B, c: C, d: D, e: E) =
+    path(Empty + a + b + c + d + e)
+
+@JvmName("pathHStack6")
+fun <A, B, C, D, E, F> UrlScheme<HStack6<F, E, D, C, B, A>>.path(a: A, b: B, c: C, d: D, e: E, f: F) =
+    path(Empty + a + b + c + d + e + f)
+
 private fun decodePathElement(s: String): String =
     URI(s).path
 
@@ -51,7 +75,7 @@ abstract class PathElement<T> : UrlScheme<T> {
     open fun pathElementFrom(value: T): String = value.toString()
 }
 
-class FixedPathElement(private val pathElement: String): PathElement<Empty>() {
+class FixedPathElement(private val pathElement: String) : PathElement<Empty>() {
     override fun parsePathElement(element: String) = Empty.takeIf { element == pathElement }
     override fun pathElementFrom(value: Empty) = pathElement
 }

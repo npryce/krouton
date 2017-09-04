@@ -56,6 +56,7 @@ class CompositionTests {
     @Test
     fun reverse_route() {
         assertThat((int + string).path(Empty + 10 + "ten"), equalTo("/10/ten"))
+        assertThat((int + string).path(10, "ten"), equalTo("/10/ten"))
     }
     
     @Test
