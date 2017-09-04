@@ -77,34 +77,34 @@ val reversed = root + "reversed" + string
 
 // The server that uses the routes
 fun exampleServer() = resources {
-    root by {
+    root methods {
         GET { ok("Hello, World.") }
     }
     
-    negate by {
+    negate methods {
         GET { i -> ok((-i).toString()) }
     }
     
-    negative by {
+    negative methods {
         // Note - reverse routing from integer to URL path
         GET { i -> redirect(MOVED_PERMANENTLY, negate.path(i)) }
     }
     
-    reverse by {
+    reverse methods {
         GET { s -> ok(s.reversed()) }
     }
     
-    reversed by {
+    reversed methods {
         GET { s -> redirect(MOVED_PERMANENTLY, reverse.path(s)) }
     }
     
-    weekday by {
+    weekday methods {
         GET { (locale, date) -> ok(date.format(DateTimeFormatter.ofPattern("EEEE", locale))) }
     }
     
-    weekdayToday by {
+    weekdayToday methods {
         /* Note - reverse routing using user-defined projection*/
-        GET { locale -> redirect(FOUND, weekday.path(Empty + locale + now())) }
+        GET { locale -> redirect(FOUND, weekday.path(locale, now())) }
     }
 }
 

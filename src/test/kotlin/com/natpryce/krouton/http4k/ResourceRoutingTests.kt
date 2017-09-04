@@ -71,7 +71,7 @@ class ResourceRoutingTests {
         val tester = root + "test" + string
         
         val router = resources {
-            tester by {
+            tester methods {
                 GET { Response(OK).body("got $it") }
                 POST { Response(OK).body("posted $it") }
             }

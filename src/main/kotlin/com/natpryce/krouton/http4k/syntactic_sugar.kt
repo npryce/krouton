@@ -9,7 +9,7 @@ import org.http4k.core.Status
 
 interface ResourceRoutesSyntax {
     operator fun <T> UrlScheme<T>.invoke(handler: Request.(T) -> Response)
-    infix fun <T> UrlScheme<T>.by(block: MethodRoutesSyntax<T>.()->Unit)
+    infix fun <T> UrlScheme<T>.methods(block: MethodRoutesSyntax<T>.()->Unit)
     fun otherwise(handler: HttpHandler)
 }
 
@@ -21,7 +21,7 @@ class ResourceRoutesBuilder : ResourceRoutesSyntax {
         routes.add(pathHandler(this, handler))
     }
     
-    override infix fun <T> UrlScheme<T>.by(block: MethodRoutesSyntax<T>.()->Unit) {
+    override infix fun <T> UrlScheme<T>.methods(block: MethodRoutesSyntax<T>.()->Unit) {
         routes.add(pathHandler(this, MethodRoutesBuilder<T>().apply(block).toHandler()))
     }
     

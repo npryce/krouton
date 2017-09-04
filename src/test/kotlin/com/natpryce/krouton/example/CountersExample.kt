@@ -51,13 +51,13 @@ fun counterServer(): HttpHandler {
     val namedCounterCompareAndSet: UrlScheme<HStack3<Int, Int, AtomicInteger>> = namedCounter + "from" + int + "to" + int
     
     return resources {
-        namedCounter by {
+        namedCounter methods {
             GET { counter ->
                 ok(counter.get())
             }
         }
         
-        namedCounterValue by {
+        namedCounterValue methods {
             POST { (counter: AtomicInteger, value: Int) ->
                 ok(counter.addAndGet(value))
             }
@@ -68,7 +68,7 @@ fun counterServer(): HttpHandler {
             }
         }
         
-        namedCounterCompareAndSet by {
+        namedCounterCompareAndSet methods {
             POST { (counter: AtomicInteger, fromValue: Int, toValue: Int) ->
                 if (counter.compareAndSet(fromValue, toValue)) {
                     ok(toValue)
