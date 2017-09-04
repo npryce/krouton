@@ -80,7 +80,6 @@ class FixedPathElement(private val pathElement: String) : PathElement<Empty>() {
     override fun pathElementFrom(value: Empty) = pathElement
 }
 
-
 class AppendedUrlScheme<T : HStack, U>(private val tScheme: UrlScheme<T>, private val uScheme: UrlScheme<U>) : UrlScheme<HCons<U, T>> {
     override fun parsePathElements(pathElements: List<String>): Pair<HCons<U, T>, List<String>>? {
         return tScheme.parsePathElements(pathElements)?.let { (t, uPathElements) ->
