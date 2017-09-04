@@ -22,4 +22,3 @@ infix fun <T> UrlScheme<T>.where(p: (T) -> Boolean): UrlScheme<T> = RestrictedUr
 
 infix fun <Parts, Mapped> UrlScheme<Parts>.asA(projection: Projection<Parts, Mapped>): UrlScheme<Mapped> =
     ProjectionUrlScheme<Parts, Mapped>(this, projection)
-

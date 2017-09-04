@@ -26,17 +26,17 @@ val double by object : PathElementType<Double> {
         parse<Double, NumberFormatException>(element, String::toDouble)
 }
 
-inline fun <reified E : Enum<E>> enum(): VariablePathElement<E> {
-    val element by object : PathElementType<E> {
-        override fun parsePathElement(element: String) = try {
-            java.lang.Enum.valueOf(E::class.java, element)
-        }
-        catch (e: IllegalArgumentException) {
-            null
-        }
-    }
-    return element
-}
+inline fun <reified E : Enum<E>> enum() =
+    VariablePathElement(
+        name = E::class.simpleName ?: "enum",
+        type = object : PathElementType<E> {
+            override fun parsePathElement(element: String) = try {
+                java.lang.Enum.valueOf(E::class.java, element)
+            }
+            catch (e: IllegalArgumentException) {
+                null
+            }
+        })
 
 val isoLocalDate by object : PathElementType<LocalDate> {
     private val format = DateTimeFormatter.ISO_LOCAL_DATE

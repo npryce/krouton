@@ -24,7 +24,7 @@ class ProjectionTests {
         assertThat(timestamp.path(Date(1000)), equalTo("/1000"))
     }
 
-
+    
     data class Score(val name: String, val score: Int) {
         companion object : Projection<HStack2<Int,String>, Score> {
             override fun fromParts(parts: HStack2<Int,String>) = Score(parts.component1(), parts.component2())
@@ -54,13 +54,13 @@ class ProjectionTests {
     val timestampedScores = (root + "at" + timestamp + "score" + scores) asA TimestampedScore
 
     @Test
-    fun route_for_composed_abstractions() {
+    fun route_for_composed_projections() {
         assertThat(timestampedScores.parse("/at/1000/score/alice/20"), equalTo(
             TimestampedScore(Date(1000), Score("alice", 20))))
     }
 
     @Test
-    fun reverse_routing_for_composed_abstractions() {
+    fun reverse_routing_for_composed_projections() {
         assertThat(timestampedScores.path(TimestampedScore(Date(3000), Score("bob", 1))),
             equalTo("/at/3000/score/bob/1"))
     }
