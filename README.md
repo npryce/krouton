@@ -19,12 +19,16 @@ Type safe routing and reverse routing.
 
 No reflection, annotations or classpath scanning.
 
-Separate reactive code from routing policy
+Explicit, type-checked flow of data and control, instead of "spooky action at a distance" via reflection, annotations,
+classpath scanning, passing data in context maps or synthetic HTTP headers, or control flow via exceptions.  
 
-* Routing policy defined by constants (immutable objects)
-* Routing done by functions/closures/objects
+Separate code that routes and handles requests from definitions of URLs
 
-Compositional: routes are composed from primitive parts, and user-defined routes can be used in 
+* URLs defined by constants (immutable objects)
+* Routing policy defined by operations on those constants
+* Routing done by functions/closures/objects that connect Krouton's routing policy API to a web server library.
+
+Compositional: routes are composed from primitive parts and composition operators. User-defined routes can be used in 
 exactly the same way as the predefined primitives.
 
 Mandatory aspects of a resource locator go in the path
@@ -36,7 +40,7 @@ Query parameters are optional and are interpreted by the resource.
 
 * Parsing: `UrlScheme<T>.parse(String) -> T?`
 * Reverse Routing: `UrlScheme<T>.path(T) -> String`
-
+* Reporting: `UrlScheme<T>.monitoredPath(T)-> String`
 
 ## Route Composition
 
