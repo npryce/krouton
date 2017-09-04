@@ -8,12 +8,14 @@ sealed class HStack
 /**
  * The empty stack
  */
-object Empty : HStack()
+object Empty : HStack() {
+    override fun toString() = "Empty"
+}
 
 /**
  * A value pushed onto the TStack
  */
-class HCons<out Top, out Rest: HStack>(val top: Top, val rest: Rest): HStack() {
+class HCons<out Top, out Rest : HStack>(val top: Top, val rest: Rest) : HStack() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -37,7 +39,7 @@ class HCons<out Top, out Rest: HStack>(val top: Top, val rest: Rest): HStack() {
     }
 }
 
-operator fun <Top, Rest: HStack> Rest.plus(top: Top): HCons<Top,Rest> = HCons(top, this)
+operator fun <Top, Rest : HStack> Rest.plus(top: Top): HCons<Top, Rest> = HCons(top, this)
 
 
 typealias HStack1<A> = HCons<A, Empty>
@@ -179,3 +181,44 @@ operator fun <A, B, C, D, E, F> HStack6<A, B, C, D, E, F>.component5(): B = rest
 operator fun <A, B, C, D, E, F> HStack6<A, B, C, D, E, F>.component6(): A = top
 
 
+/**
+ * Turn a function that takes parameters on the stack into one that takes them in an HStack
+ */
+fun <Result> (() -> Result).forHStacks(): (Empty) -> Result =
+    { _ -> this() }
+
+/**
+ * Turn a function that takes parameters on the stack into one that takes them in an HStack
+ */
+fun <A, Result> ((A) -> Result).forHStacks(): (HStack1<A>) -> Result =
+    { (a) -> this(a) }
+
+/**
+ * Turn a function that takes parameters on the stack into one that takes them in an HStack
+ */
+fun <A, B, Result> ((A, B) -> Result).forHStacks(): (HStack2<B, A>) -> Result =
+    { (a, b) -> this(a, b) }
+
+/**
+ * Turn a function that takes parameters on the stack into one that takes them in an HStack
+ */
+fun <A, B, C, Result> ((A, B, C) -> Result).forHStacks(): (HStack3<C, B, A>) -> Result =
+    { (a, b, c) -> this(a, b, c) }
+
+/**
+ * Turn a function that takes parameters on the stack into one that takes them in an HStack
+ */
+fun <A, B, C, D, Result> ((A, B, C, D) -> Result).forHStacks(): (HStack4<D, C, B, A>) -> Result =
+    { (a, b, c, d) -> this(a, b, c, d) }
+
+/**
+ * Turn a function that takes parameters on the stack into one that takes them in an HStack
+ */
+fun <A, B, C, D, E, Result> ((A, B, C, D, E) -> Result).forHStacks(): (HStack5<E, D, C, B, A>) -> Result =
+    { (a, b, c, d, e) -> this(a, b, c, d, e) }
+
+/**
+ * Turn a function that takes parameters on the stack into one that takes them in an HStack
+ */
+fun <A, B, C, D, E, F, Result> ((A, B, C, D, E, F) -> Result).forHStacks(): (HStack6<F, E, D, C, B, A>) -> Result =
+    { (a, b, c, d, e, f) -> this(a, b, c, d, e, f) }

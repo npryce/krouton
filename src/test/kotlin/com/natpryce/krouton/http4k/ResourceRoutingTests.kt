@@ -4,6 +4,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.double
 import com.natpryce.krouton.int
+import com.natpryce.krouton.named
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
@@ -20,8 +21,8 @@ import org.junit.Test
 
 
 class ResourceRoutingTests {
-    val incrementInt = root + "inc" + int
-    val incrementDouble = root + "inc" + double
+    val incrementInt = root + "inc" + int.named("i")
+    val incrementDouble = root + "inc" + double.named("d")
     
     @Test
     fun `routes by path`() {
@@ -68,7 +69,7 @@ class ResourceRoutingTests {
     
     @Test
     fun `routing by method`() {
-        val tester = root + "test" + string
+        val tester = root + "test" + string.named("s")
         
         val router = resources {
             tester methods {

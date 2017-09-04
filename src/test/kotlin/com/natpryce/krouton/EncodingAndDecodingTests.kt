@@ -14,7 +14,7 @@ class EncodingAndDecodingTests {
     }
 
     fun assertEncodeDecode(pathElements: List<String>, path: String) {
-        assertThat("encoding", joinPath(pathElements), equalTo(path))
+        assertThat("encoding", joinPath(pathElements, ::encodePathElement), equalTo(path))
         assertThat("decoding", splitPath(path), equalTo(pathElements))
     }
 }

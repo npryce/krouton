@@ -12,16 +12,16 @@ class ProjectionTests {
         override fun toParts(mapped: Date) = mapped.time
     }
 
-    val timestamps = long asA MillisSinceEpoch
+    val timestamp = long.named("timestamp") asA MillisSinceEpoch
 
     @Test
     fun route_for_abstracted_scalar() {
-        assertThat(timestamps.parse("/30"), equalTo(Date(30)))
+        assertThat(timestamp.parse("/30"), equalTo(Date(30)))
     }
 
     @Test
     fun reverse_routing_for_abstracted_scalar() {
-        assertThat(timestamps.path(Date(1000)), equalTo("/1000"))
+        assertThat(timestamp.path(Date(1000)), equalTo("/1000"))
     }
 
 
@@ -32,7 +32,7 @@ class ProjectionTests {
         }
     }
 
-    val scores = string + int asA Score
+    val scores = string.named("name") + int.named("score") asA Score
 
     @Test
     fun route_for_abstracted_pair() {
@@ -51,7 +51,7 @@ class ProjectionTests {
         }
     }
     
-    val timestampedScores = (root + "at" + timestamps + "score" + scores) asA TimestampedScore
+    val timestampedScores = (root + "at" + timestamp + "score" + scores) asA TimestampedScore
 
     @Test
     fun route_for_composed_abstractions() {

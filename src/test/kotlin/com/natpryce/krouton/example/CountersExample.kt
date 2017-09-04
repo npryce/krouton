@@ -14,8 +14,10 @@ import com.natpryce.krouton.asA
 import com.natpryce.krouton.component1
 import com.natpryce.krouton.component2
 import com.natpryce.krouton.component3
+import com.natpryce.krouton.getValue
 import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.int
+import com.natpryce.krouton.named
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
@@ -46,9 +48,9 @@ fun counterIn(counters: ConcurrentHashMap<String, AtomicInteger>) = object : Pro
 fun counterServer(): HttpHandler {
     val counters = ConcurrentHashMap<String, AtomicInteger>()
     
-    val namedCounter: UrlScheme<AtomicInteger> = root + "counter" + string asA counterIn(counters)
-    val namedCounterValue: UrlScheme<HStack2<Int, AtomicInteger>> = namedCounter + int
-    val namedCounterCompareAndSet: UrlScheme<HStack3<Int, Int, AtomicInteger>> = namedCounter + "from" + int + "to" + int
+    val namedCounter: UrlScheme<AtomicInteger> = root + "counter" + string.named("counterId") asA counterIn(counters)
+    val namedCounterValue: UrlScheme<HStack2<Int, AtomicInteger>> = namedCounter + int.named("value")
+    val namedCounterCompareAndSet: UrlScheme<HStack3<Int, Int, AtomicInteger>> = namedCounter + "from" + int.named("from") + "to" + int.named("to")
     
     return resources {
         namedCounter methods {

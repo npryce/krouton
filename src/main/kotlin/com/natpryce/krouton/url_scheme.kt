@@ -2,11 +2,23 @@ package com.natpryce.krouton
 
 import com.google.common.net.UrlEscapers
 import java.net.URI
+import kotlin.reflect.KProperty
 
+sealed class TemplatePathElement
+data class Literal(val value: String) : TemplatePathElement()
+data class Variable(val name: String) : TemplatePathElement()
+
+
+
+interface PathElementType<T> {
+    fun parsePathElement(element: String): T?
+    fun pathElementFrom(value: T): String = value.toString()
+}
 
 interface UrlScheme<T> {
     fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>?
     fun pathElementsFrom(value: T): List<String>
+    fun monitoredPathElementsFrom(value: T): List<TemplatePathElement>
 }
 
 fun <T> UrlScheme<T>.parse(s: String): T? {
@@ -17,51 +29,39 @@ fun <T> UrlScheme<T>.parse(splitPath: List<String>): T? =
     parsePathElements(splitPath)?.let { (result, unused) -> if (unused.isEmpty()) result else null }
 
 fun <T> UrlScheme<T>.path(value: T): String =
-    joinPath(pathElementsFrom(value))
+    joinPath(pathElementsFrom(value), transform = ::encodePathElement)
 
-@JvmName("pathHStack1")
-fun <A> UrlScheme<HStack1<A>>.path(a: A) =
-    path(Empty + a)
+fun <T> UrlScheme<T>.monitoredPath(value: T): String =
+    joinPath(monitoredPathElementsFrom(value), ::encodeTemplatePathElement)
 
-@JvmName("pathHStack2")
-fun <A, B> UrlScheme<HStack2<B, A>>.path(a: A, b: B) =
-    path(Empty + a + b)
-
-@JvmName("pathHStack3")
-fun <A, B, C> UrlScheme<HStack3<C, B, A>>.path(a: A, b: B, c: C) =
-    path(Empty + a + b + c)
-
-@JvmName("pathHStack4")
-fun <A, B, C, D> UrlScheme<HStack4<D, C, B, A>>.path(a: A, b: B, c: C, d: D) =
-    path(Empty + a + b + c + d)
-
-@JvmName("pathHStack5")
-fun <A, B, C, D, E> UrlScheme<HStack5<E, D, C, B, A>>.path(a: A, b: B, c: C, d: D, e: E) =
-    path(Empty + a + b + c + d + e)
-
-@JvmName("pathHStack6")
-fun <A, B, C, D, E, F> UrlScheme<HStack6<F, E, D, C, B, A>>.path(a: A, b: B, c: C, d: D, e: E, f: F) =
-    path(Empty + a + b + c + d + e + f)
 
 private fun decodePathElement(s: String): String =
     URI(s).path
 
-private fun encodePathElement(s: String): String =
-    UrlEscapers.urlPathSegmentEscaper().escape(s)
-
 internal fun splitPath(path: String) =
     path.split("/").filterNot(String::isEmpty).map(::decodePathElement)
 
-internal fun joinPath(pathElements: List<String>) =
-    "/" + pathElements.joinToString("/", transform = ::encodePathElement)
+internal fun <T> joinPath(pathElements: List<T>, transform: (T) -> CharSequence) =
+    "/" + pathElements.joinToString("/", transform = transform)
+
+internal fun encodePathElement(s: String): String =
+    UrlEscapers.urlPathSegmentEscaper().escape(s)
+
+internal fun encodeTemplatePathElement(it: TemplatePathElement): CharSequence {
+    return when (it) {
+        is Variable -> "{" + it.name + "}"
+        is Literal -> encodePathElement(it.value)
+    }
+}
 
 
 object root : UrlScheme<Empty> {
-    override fun pathElementsFrom(value: Empty) = emptyList<String>()
     override fun parsePathElements(pathElements: List<String>) = Pair(Empty, pathElements)
+    override fun pathElementsFrom(value: Empty) = emptyList<String>()
+    override fun monitoredPathElementsFrom(value: Empty) = emptyList<TemplatePathElement>()
 }
 
-abstract class PathElement<T> : UrlScheme<T> {
+sealed class PathElement<T> : UrlScheme<T> {
     final override fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>? =
         pathElements.firstOrNull()
             ?.let { parsePathElement(it) }
@@ -72,12 +72,34 @@ abstract class PathElement<T> : UrlScheme<T> {
     final override fun pathElementsFrom(value: T): List<String> =
         listOf(pathElementFrom(value))
     
-    open fun pathElementFrom(value: T): String = value.toString()
+    abstract fun pathElementFrom(value: T): String
+    
+    final override fun monitoredPathElementsFrom(value: T): List<TemplatePathElement> =
+        listOf(monitoredPathElementFrom(value))
+    
+    abstract fun monitoredPathElementFrom(value: T): TemplatePathElement
 }
+
+data class VariablePathElement<T>(val type: PathElementType<T>, val name: String, val monitored: Boolean = false) : PathElement<T>() {
+    override fun parsePathElement(element: String): T? =
+        type.parsePathElement(element)
+    override fun pathElementFrom(value: T): String =
+        type.pathElementFrom(value)
+    override fun monitoredPathElementFrom(value: T): TemplatePathElement =
+        if (monitored) Literal(pathElementFrom(value)) else Variable(name)
+}
+
+fun <T> PathElementType<T>.named(name: String) = VariablePathElement(type = this, name = name)
+
+operator fun <T> PathElementType<T>.getValue(obj: Any?, property: KProperty<*>): VariablePathElement<T> =
+    this.named(property.name)
+
+fun <T> VariablePathElement<T>.monitored() = copy(monitored = true)
 
 class FixedPathElement(private val pathElement: String) : PathElement<Empty>() {
     override fun parsePathElement(element: String) = Empty.takeIf { element == pathElement }
     override fun pathElementFrom(value: Empty) = pathElement
+    override fun monitoredPathElementFrom(value: Empty) = Literal(pathElement)
 }
 
 class AppendedUrlScheme<T : HStack, U>(private val tScheme: UrlScheme<T>, private val uScheme: UrlScheme<U>) : UrlScheme<HCons<U, T>> {
@@ -90,6 +112,37 @@ class AppendedUrlScheme<T : HStack, U>(private val tScheme: UrlScheme<T>, privat
     override fun pathElementsFrom(value: HCons<U, T>): List<String> {
         return tScheme.pathElementsFrom(value.rest) + uScheme.pathElementsFrom(value.top)
     }
+    
+    override fun monitoredPathElementsFrom(value: HCons<U, T>) =
+        tScheme.monitoredPathElementsFrom(value.rest) + uScheme.monitoredPathElementsFrom(value.top)
+}
+
+class PrefixedUrlScheme<T>(private val prefix: UrlScheme<Empty>, private val rest: UrlScheme<T>) : UrlScheme<T> {
+    override fun pathElementsFrom(value: T) =
+        prefix.pathElementsFrom(Empty) + rest.pathElementsFrom(value)
+    
+    override fun parsePathElements(pathElements: List<String>) =
+        prefix.parsePathElements(pathElements)
+            ?.let { (_, restPathElements) -> rest.parsePathElements(restPathElements) }
+    
+    override fun monitoredPathElementsFrom(value: T) =
+        prefix.monitoredPathElementsFrom(Empty) + rest.monitoredPathElementsFrom(value)
+}
+
+
+class SuffixedUrlScheme<T>(private val first: UrlScheme<T>, private val suffix: UrlScheme<Empty>) : UrlScheme<T> {
+    override fun pathElementsFrom(value: T) =
+        first.pathElementsFrom(value) + suffix.pathElementsFrom(Empty)
+    
+    override fun parsePathElements(pathElements: List<String>) =
+        first.parsePathElements(pathElements)
+            ?.let { (value, restPathElements) ->
+                suffix.parsePathElements(restPathElements)
+                    ?.let { (_, remainderPathElements) -> Pair(value, remainderPathElements) }
+            }
+    
+    override fun monitoredPathElementsFrom(value: T) =
+        first.monitoredPathElementsFrom(value) + suffix.monitoredPathElementsFrom(Empty)
 }
 
 class RestrictedUrlScheme<T>(private val base: UrlScheme<T>, private val p: (T) -> Boolean) : UrlScheme<T> {
@@ -97,24 +150,8 @@ class RestrictedUrlScheme<T>(private val base: UrlScheme<T>, private val p: (T) 
         base.parsePathElements(pathElements)?.flatMapFirst { if (p(it)) it else null }
     
     override fun pathElementsFrom(value: T) = base.pathElementsFrom(value)
-}
-
-class RepeatedUrlScheme<T>(private val elementScheme: UrlScheme<T>) : UrlScheme<List<T>> {
-    override fun parsePathElements(pathElements: List<String>) = parse(mutableListOf(), pathElements)
     
-    override fun pathElementsFrom(value: List<T>) = value.flatMap { elementScheme.pathElementsFrom(it) }
-    
-    private tailrec fun parse(accumulator: MutableList<T>, pathElements: List<String>): Pair<List<T>, List<String>> {
-        val parsed = elementScheme.parsePathElements(pathElements)
-        return when (parsed) {
-            null -> Pair(accumulator, pathElements)
-            else -> {
-                val (element, rest) = parsed
-                accumulator.add(element)
-                parse(accumulator, rest)
-            }
-        }
-    }
+    override fun monitoredPathElementsFrom(value: T) = base.monitoredPathElementsFrom(value)
 }
 
 interface Projection<Parts, Mapped> {
@@ -141,4 +178,7 @@ class ProjectionUrlScheme<T, U>(
     
     override fun pathElementsFrom(value: U) =
         base.pathElementsFrom(projection.toParts(value))
+    
+    override fun monitoredPathElementsFrom(value: U) =
+        base.monitoredPathElementsFrom(projection.toParts(value))
 }

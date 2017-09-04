@@ -13,9 +13,11 @@ import com.natpryce.krouton.asA
 import com.natpryce.krouton.component1
 import com.natpryce.krouton.component2
 import com.natpryce.krouton.component3
+import com.natpryce.krouton.getValue
 import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.int
 import com.natpryce.krouton.locale
+import com.natpryce.krouton.named
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
@@ -57,22 +59,25 @@ object LocalDate_ : Projection<HStack3<Int, Int, Int>, LocalDate> {
 }
 
 // Components of the application's routes
-val year = int
-val month = int
-val day = int
+val year by int
+val month by int
+val day by int
 val date = year + month + day asA LocalDate_
 
+val text by string
+val operand by int
 
 // The application's routes
-val reverse = root + "reverse" + string
-val negate = root + "negate" + int
+val reverse = root + "reverse" + text
+val negate = root + "negate" + operand
+
 // Note: without these explicit type declarations, the Kotlin compiler crashes with an internal error
-val weekday: UrlScheme<HStack2<LocalDate, Locale>> = root + "weekday" + locale + date
-val weekdayToday: UrlScheme<Locale> = root + "weekday" + locale + "today"
+val weekday: UrlScheme<HStack2<LocalDate, Locale>> = root + "weekday" + locale.named("locale") + date
+val weekdayToday: UrlScheme<Locale> = root + "weekday" + locale.named("locale") + "today"
 
 // Obsolete routes that each redirect to one of the routes above
-val negative = root + "negative" + int
-val reversed = root + "reversed" + string
+val negative = root + "negative" + operand
+val reversed = root + "reversed" + text
 
 
 // The server that uses the routes
