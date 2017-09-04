@@ -36,13 +36,13 @@ Mandatory aspects of a resource locator go in the path
 Query parameters are optional and are interpreted by the resource.
 
 
-## Routing Policy Operations
+## Routing policy operations
 
 * Parsing: `UrlScheme<T>.parse(String) -> T?`
 * Reverse Routing: `UrlScheme<T>.path(T) -> String`
 * Reporting: `UrlScheme<T>.monitoredPath(T)-> String`
 
-## Route Composition
+## Route composition
 
 * Append: 
     * `UrlScheme<T> + UrlScheme<U> -> UrlScheme<(T,U)>`
@@ -51,3 +51,12 @@ Query parameters are optional and are interpreted by the resource.
 * Append fixed path element: `UrlScheme<T> + String -> UrlScheme<T>`
 * Restrict: `UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
 * Project: `UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
+
+
+## What's with the version number?
+
+The version number is {mental}.{major}.{minor}.{patch}.  The last three digits are treated as a
+[semantic version number](https://semver.org).  The first digit is incremented if there is a significant 
+change in the mental model underpinning the library.   A major version of zero always signifies a pre-release version,
+irrespective of the value of the first digit.  The API of pre-release versions may go through significant changes in 
+response to user feedback before the release of version x.1.0.0.
