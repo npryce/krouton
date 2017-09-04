@@ -13,16 +13,20 @@ interface ResourceRoutesSyntax {
     fun otherwise(handler: HttpHandler)
 }
 
-class ResourceRoutesBuilder : ResourceRoutesSyntax {
+class ResourceRoutesBuilder(private val monitor: RequestMonitor?) : ResourceRoutesSyntax {
     private val routes = mutableListOf<PathMatchingHttpHandler>()
     private var handlerIfNoMatch : HttpHandler = { Response(Status.NOT_FOUND) }
     
     override operator fun <T> UrlScheme<T>.invoke(handler: Request.(T) -> Response) {
-        routes.add(pathHandler(this, handler))
+        addPathHandler(this, handler)
     }
     
     override infix fun <T> UrlScheme<T>.methods(block: MethodRoutesSyntax<T>.()->Unit) {
-        routes.add(pathHandler(this, MethodRoutesBuilder<T>().apply(block).toHandler()))
+        addPathHandler(this, MethodRoutesBuilder<T>().apply(block).toHandler())
+    }
+    
+    private fun <T> addPathHandler(urlScheme: UrlScheme<T>, handler: Request.(T) -> Response) {
+        routes.add(pathHandler(urlScheme, handler, monitor))
     }
     
     override fun otherwise(handler: HttpHandler) {
@@ -56,5 +60,9 @@ class MethodRoutesBuilder<T> : MethodRoutesSyntax<T> {
     
 }
 
+
 inline fun resources(setup: ResourceRoutesSyntax.() -> Unit) =
-    ResourceRoutesBuilder().apply(setup).toHandler()
+    ResourceRoutesBuilder(null).apply(setup).toHandler()
+
+inline fun resources(noinline monitor: RequestMonitor, setup: ResourceRoutesSyntax.() -> Unit) =
+    ResourceRoutesBuilder(monitor).apply(setup).toHandler()
