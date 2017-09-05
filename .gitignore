@@ -12,7 +12,6 @@ hs_err_pid*
 .idea/modules.xml
 .idea/compiler.xml
 .idea/gradle.xml
-.idea/misc.xml
 *.iml
 
 out/
