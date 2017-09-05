@@ -6,10 +6,10 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.has
 import com.natpryce.hamkrest.present
 import com.natpryce.hamkrest.throws
-import com.natpryce.krouton.Projection
 import com.natpryce.krouton.PathTemplate
 import com.natpryce.krouton.PathTemplate2
 import com.natpryce.krouton.PathTemplate3
+import com.natpryce.krouton.Projection
 import com.natpryce.krouton.asA
 import com.natpryce.krouton.component1
 import com.natpryce.krouton.component2
@@ -47,8 +47,8 @@ fun counterServer(): HttpHandler {
     val counters = ConcurrentHashMap<String, AtomicInteger>()
     
     val namedCounter: PathTemplate<AtomicInteger> = root + "counter" + string.named("counterId").monitored() asA counterIn(counters)
-    val namedCounterValue: PathTemplate2<Int, AtomicInteger> = namedCounter + int
-    val namedCounterCompareAndSet: PathTemplate3<Int, Int, AtomicInteger> = namedCounter + "from" + int.named("from") + "to" + int.named("to")
+    val namedCounterValue: PathTemplate2<AtomicInteger, Int> = namedCounter + int
+    val namedCounterCompareAndSet: PathTemplate3<AtomicInteger, Int, Int> = namedCounter + "from" + int.named("from") + "to" + int.named("to")
     
     return resources {
         namedCounter methods {
