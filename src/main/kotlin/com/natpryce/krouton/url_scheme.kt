@@ -54,7 +54,9 @@ internal fun encodeTemplatePathElement(it: TemplatePathElement): CharSequence {
     }
 }
 
-
+/**
+ * The root of path, <code>/</code>.
+ */
 object root : UrlScheme<Empty> {
     override fun parsePathElements(pathElements: List<String>) = Pair(Empty, pathElements)
     override fun pathElementsFrom(value: Empty) = emptyList<String>()
@@ -83,7 +85,7 @@ abstract class PathElement<T> : UrlScheme<T> {
 class VariablePathElement<T>(
     private val type: PathElementType<T>,
     private val name: String,
-    private val monitored: Boolean = false
+    private val isMonitored: Boolean = false
 ) : PathElement<T>() {
     override fun parsePathElement(element: String): T? =
         type.parsePathElement(element)
@@ -92,10 +94,10 @@ class VariablePathElement<T>(
         type.pathElementFrom(value)
     
     override fun monitoredPathElementFrom(value: T): TemplatePathElement =
-        if (monitored) Literal(pathElementFrom(value)) else Variable(name)
+        if (isMonitored) Literal(pathElementFrom(value)) else Variable(name)
     
-    fun named(name: String) = VariablePathElement(type = type, name = name, monitored = monitored)
-    fun monitored() = VariablePathElement(type = type, name = name, monitored = true)
+    fun named(name: String) = VariablePathElement(type = type, name = name, isMonitored = isMonitored)
+    fun monitored() = VariablePathElement(type = type, name = name, isMonitored = true)
 }
 
 
