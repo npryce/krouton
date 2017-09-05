@@ -1,5 +1,8 @@
 package com.natpryce.krouton
 
+operator fun String.unaryPlus() = root + this
+operator fun <T> UrlScheme<T>.unaryPlus() = root + this
+
 operator fun <T> UrlScheme<T>.plus(fixedElement: String): UrlScheme<T> =
     this + FixedPathElement(fixedElement)
 

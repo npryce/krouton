@@ -8,22 +8,22 @@ import org.junit.Test
 class CompositionTests {
     @Test
     fun route_prefixed_single_element() {
-        assertThat((root + "foo" + string).parse("/foo/bob"), equalTo("bob"))
-        assertThat((root + "bar" + int).parse("/bar/99"), equalTo(99))
+        assertThat((+"foo" + string).parse("/foo/bob"), equalTo("bob"))
+        assertThat((+"bar" + int).parse("/bar/99"), equalTo(99))
     }
     
     @Test
     fun reverse_route_for_prefixed_single_element() {
-        assertThat((root + "bob" + string).path("xxx"), equalTo("/bob/xxx"))
-        assertThat((root + "foo" + int).path(72), equalTo("/foo/72"))
+        assertThat((+"bob" + string).path("xxx"), equalTo("/bob/xxx"))
+        assertThat((+"foo" + int).path(72), equalTo("/foo/72"))
     }
     
     @Test
     fun route_prefixed_single_element_when_failing() {
-        assertThat((root + "a" + int).parse("/a"), absent())
-        assertThat((root + "b" + int).parse("/b/not-an-int"), absent())
-        assertThat((root + "c" + int).parse("/c/10/unwanted-suffix"), absent())
-        assertThat((root + "d" + int).parse("/c/10"), absent())
+        assertThat((+"a" + int).parse("/a"), absent())
+        assertThat((+"b" + int).parse("/b/not-an-int"), absent())
+        assertThat((+"c" + int).parse("/c/10/unwanted-suffix"), absent())
+        assertThat((+"d" + int).parse("/c/10"), absent())
     }
     
     @Test
@@ -64,6 +64,12 @@ class CompositionTests {
         assertThat((root + string).parse("/foo"), equalTo("foo"))
         assertThat((string + root).parse("/foo"), equalTo("foo"))
         assertThat((root + string + root).parse("/foo"), equalTo("foo"))
+    }
+    
+    @Test
+    fun unary_plus_is_syntactic_sugar_for_prefixed_by_root() {
+        assertThat((root + string).path("foo"), equalTo((+string).path("foo")))
+        assertThat((+ "blah").path(), equalTo((root + "blah").path()))
     }
     
     @Test
