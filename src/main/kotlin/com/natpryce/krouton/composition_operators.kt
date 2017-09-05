@@ -6,7 +6,7 @@ operator fun <T> UrlScheme<T>.unaryPlus() = root + this
 operator fun <T> UrlScheme<T>.plus(fixedElement: String): UrlScheme<T> =
     this + FixedPathElement(fixedElement)
 
-@JvmName("plusToTStack")
+@JvmName("append")
 operator fun <T : HStack, U> UrlScheme<T>.plus(rest: UrlScheme<U>): UrlScheme<HCons<U, T>> = AppendedUrlScheme(this, rest)
 
 @JvmName("plusPrefix")
