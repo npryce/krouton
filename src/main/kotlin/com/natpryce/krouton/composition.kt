@@ -17,7 +17,6 @@ operator fun <T> UrlScheme<Empty>.plus(rest: UrlScheme<T>): UrlScheme<T> =
 operator fun <T> UrlScheme<T>.plus(suffix: UrlScheme<Empty>): UrlScheme<T> =
     SuffixedUrlScheme(this, suffix)
 
-@JvmName("plusRaw")
 operator fun <T, U> UrlScheme<T>.plus(rest: UrlScheme<U>): UrlScheme<HStack2<U, T>> =
     AppendedUrlScheme(this asA tStack(), rest)
 
