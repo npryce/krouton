@@ -53,3 +53,13 @@ val locale by object : PathElementType<Locale> {
     override fun pathElementFrom(value: Locale) = value.toLanguageTag()
 }
 
+private inline fun <T, reified X : Exception> parse(s: String, parser: (String) -> T): T? =
+    try {
+        parser(s)
+    } catch (e: Exception) {
+        if (e is X) {
+            null
+        } else {
+            throw e
+        }
+    }

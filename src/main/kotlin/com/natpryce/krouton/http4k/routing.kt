@@ -1,7 +1,6 @@
 package com.natpryce.krouton.http4k
 
 import com.natpryce.krouton.UrlScheme
-import com.natpryce.krouton.firstNonNull
 import com.natpryce.krouton.monitoredPath
 import com.natpryce.krouton.parse
 import com.natpryce.krouton.splitPath
@@ -42,5 +41,9 @@ fun <T> pathHandler(urlScheme: UrlScheme<T>, handler: Request.(T) -> Response, m
         }
     }
 
+private inline fun <T, U> List<T>.firstNonNull(f: (T) -> U?): U? {
+    forEach { t -> f(t)?.let { return it } }
+    return null
+}
 
 

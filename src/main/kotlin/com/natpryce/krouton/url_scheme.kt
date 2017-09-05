@@ -194,3 +194,6 @@ class ProjectionUrlScheme<T, U>(
     override fun monitoredPathElementsFrom(value: U) =
         base.monitoredPathElementsFrom(projection.toParts(value))
 }
+
+private fun <T1, T2, U> Pair<T1, U>?.flatMapFirst(f: (T1) -> T2?): Pair<T2, U>? =
+    this?.let { f(first)?.let { it to second } }
