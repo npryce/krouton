@@ -26,7 +26,7 @@ class ProjectionTests {
 
     
     data class Score(val name: String, val score: Int) {
-        companion object : Projection<HStack2<Int,String>, Score> {
+        companion object : Projection<HStack2<Int, String>, Score> {
             override fun fromParts(parts: HStack2<Int,String>) = Score(parts.component1(), parts.component2())
             override fun toParts(mapped: Score): HStack2<Int, String> = Empty + mapped.name + mapped.score
         }
@@ -45,7 +45,7 @@ class ProjectionTests {
     }
     
     data class TimestampedScore(val timestamp: Date, val score: Score) {
-        companion object : Projection<HStack2<Score,Date>, TimestampedScore> {
+        companion object : Projection<HStack2<Score, Date>, TimestampedScore> {
             override fun fromParts(parts: HStack2<Score,Date>) = TimestampedScore(parts.component1(), parts.component2())
             override fun toParts(mapped: TimestampedScore) = Empty + mapped.timestamp + mapped.score
         }

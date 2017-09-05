@@ -1,6 +1,6 @@
 package com.natpryce.krouton.http4k
 
-import com.natpryce.krouton.UrlScheme
+import com.natpryce.krouton.PathTemplate
 import com.natpryce.krouton.monitoredPath
 import com.natpryce.krouton.parse
 import com.natpryce.krouton.splitPath
@@ -26,13 +26,13 @@ fun pathRouter(routes: List<PathMatchingHttpHandler>, handlerIfNoMatch: HttpHand
     }
 
 
-fun <T> pathHandler(urlScheme: UrlScheme<T>, handler: Request.(T) -> Response, monitor: RequestMonitor?): PathMatchingHttpHandler =
+fun <T> pathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response, monitor: RequestMonitor?): PathMatchingHttpHandler =
     fun(request: Request, path: List<String>): Response? {
-        val parsed = urlScheme.parse(path)
+        val parsed = pathTemplate.parse(path)
         if (parsed != null) {
             val response = request.handler(parsed)
             if (monitor != null) {
-                monitor(request, response, urlScheme.monitoredPath(parsed))
+                monitor(request, response, pathTemplate.monitoredPath(parsed))
             }
             return response
         }

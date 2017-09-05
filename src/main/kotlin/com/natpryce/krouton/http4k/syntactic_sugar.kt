@@ -1,6 +1,6 @@
 package com.natpryce.krouton.http4k
 
-import com.natpryce.krouton.UrlScheme
+import com.natpryce.krouton.PathTemplate
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -8,8 +8,8 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 
 interface ResourceRoutesSyntax {
-    operator fun <T> UrlScheme<T>.invoke(handler: Request.(T) -> Response)
-    infix fun <T> UrlScheme<T>.methods(block: MethodRoutesSyntax<T>.()->Unit)
+    operator fun <T> PathTemplate<T>.invoke(handler: Request.(T) -> Response)
+    infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.()->Unit)
     fun otherwise(handler: HttpHandler)
 }
 
@@ -17,16 +17,16 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) : ResourceRout
     private val routes = mutableListOf<PathMatchingHttpHandler>()
     private var handlerIfNoMatch : HttpHandler = { Response(Status.NOT_FOUND) }
     
-    override operator fun <T> UrlScheme<T>.invoke(handler: Request.(T) -> Response) {
+    override operator fun <T> PathTemplate<T>.invoke(handler: Request.(T) -> Response) {
         addPathHandler(this, handler)
     }
     
-    override infix fun <T> UrlScheme<T>.methods(block: MethodRoutesSyntax<T>.()->Unit) {
+    override infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.()->Unit) {
         addPathHandler(this, MethodRoutesBuilder<T>().apply(block).toHandler())
     }
     
-    private fun <T> addPathHandler(urlScheme: UrlScheme<T>, handler: Request.(T) -> Response) {
-        routes.add(pathHandler(urlScheme, handler, monitor))
+    private fun <T> addPathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response) {
+        routes.add(pathHandler(pathTemplate, handler, monitor))
     }
     
     override fun otherwise(handler: HttpHandler) {

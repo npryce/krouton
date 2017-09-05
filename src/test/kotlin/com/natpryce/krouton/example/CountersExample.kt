@@ -6,12 +6,10 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.has
 import com.natpryce.hamkrest.present
 import com.natpryce.hamkrest.throws
-import com.natpryce.krouton.HStack2
-import com.natpryce.krouton.HStack3
 import com.natpryce.krouton.Projection
-import com.natpryce.krouton.UrlScheme
-import com.natpryce.krouton.UrlScheme2
-import com.natpryce.krouton.UrlScheme3
+import com.natpryce.krouton.PathTemplate
+import com.natpryce.krouton.PathTemplate2
+import com.natpryce.krouton.PathTemplate3
 import com.natpryce.krouton.asA
 import com.natpryce.krouton.component1
 import com.natpryce.krouton.component2
@@ -48,9 +46,9 @@ fun counterIn(counters: ConcurrentHashMap<String, AtomicInteger>) = object : Pro
 fun counterServer(): HttpHandler {
     val counters = ConcurrentHashMap<String, AtomicInteger>()
     
-    val namedCounter: UrlScheme<AtomicInteger> = root + "counter" + string.named("counterId").monitored() asA counterIn(counters)
-    val namedCounterValue: UrlScheme2<Int, AtomicInteger> = namedCounter + int
-    val namedCounterCompareAndSet: UrlScheme3<Int, Int, AtomicInteger> = namedCounter + "from" + int.named("from") + "to" + int.named("to")
+    val namedCounter: PathTemplate<AtomicInteger> = root + "counter" + string.named("counterId").monitored() asA counterIn(counters)
+    val namedCounterValue: PathTemplate2<Int, AtomicInteger> = namedCounter + int
+    val namedCounterCompareAndSet: PathTemplate3<Int, Int, AtomicInteger> = namedCounter + "from" + int.named("from") + "to" + int.named("to")
     
     return resources {
         namedCounter methods {

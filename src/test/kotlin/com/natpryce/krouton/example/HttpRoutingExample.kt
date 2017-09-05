@@ -7,8 +7,8 @@ import com.natpryce.hamkrest.present
 import com.natpryce.krouton.Empty
 import com.natpryce.krouton.HStack3
 import com.natpryce.krouton.Projection
-import com.natpryce.krouton.UrlScheme
-import com.natpryce.krouton.UrlScheme2
+import com.natpryce.krouton.PathTemplate
+import com.natpryce.krouton.PathTemplate2
 import com.natpryce.krouton.asA
 import com.natpryce.krouton.component1
 import com.natpryce.krouton.component2
@@ -68,8 +68,8 @@ val reverse = root + "reverse" + string
 val negate = root + "negate" + int
 
 // Note: without these explicit type declarations, the Kotlin compiler crashes with an internal error
-val weekday: UrlScheme2<LocalDate, Locale> = root + "weekday" + locale.named("locale") + date
-val weekdayToday: UrlScheme<Locale> = root + "weekday" + locale.named("locale") + "today"
+val weekday: PathTemplate2<LocalDate, Locale> = root + "weekday" + locale.named("locale") + date
+val weekdayToday: PathTemplate<Locale> = root + "weekday" + locale.named("locale") + "today"
 
 // Obsolete routes that each redirect to one of the routes above
 val negative = root + "negative" + int

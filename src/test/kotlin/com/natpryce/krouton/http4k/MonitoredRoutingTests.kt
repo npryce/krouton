@@ -3,7 +3,7 @@ package com.natpryce.krouton.http4k
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.HStack2
-import com.natpryce.krouton.UrlScheme
+import com.natpryce.krouton.PathTemplate
 import com.natpryce.krouton.int
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
@@ -18,7 +18,7 @@ import org.junit.Test
 class MonitoredRoutingTests {
     var lastEvent: Triple<Request, Response, String>? = null
     
-    val example: UrlScheme<HStack2<Int, String>> = root + "example" + string.named("name").monitored() + int.named("x")
+    val example: PathTemplate<HStack2<Int, String>> = root + "example" + string.named("name").monitored() + int.named("x")
     
     val monitor : RequestMonitor = { request, response, pathTemplate ->
         lastEvent = Triple(request, response, pathTemplate)

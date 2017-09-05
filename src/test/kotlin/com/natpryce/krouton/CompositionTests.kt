@@ -74,7 +74,7 @@ class CompositionTests {
     
     @Test
     fun stress_test() {
-        val crazyScheme: UrlScheme<String> = root + "first" + "mid1" + string + "mid2" + "last"
+        val crazyScheme: PathTemplate<String> = root + "first" + "mid1" + string + "mid2" + "last"
         assertThat(crazyScheme.parse("/first/mid1/foo/mid2/last"), equalTo("foo"))
     }
 }

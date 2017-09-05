@@ -1,26 +1,26 @@
 package com.natpryce.krouton
 
 operator fun String.unaryPlus() = root + this
-operator fun <T> UrlScheme<T>.unaryPlus() = root + this
+operator fun <T> PathTemplate<T>.unaryPlus() = root + this
 
-operator fun <T> UrlScheme<T>.plus(fixedElement: String): UrlScheme<T> =
+operator fun <T> PathTemplate<T>.plus(fixedElement: String): PathTemplate<T> =
     this + LiteralPathElement(fixedElement)
 
 @JvmName("append")
-operator fun <T : HStack, U> UrlScheme<T>.plus(rest: UrlScheme<U>): UrlScheme<HCons<U, T>> = AppendedUrlScheme(this, rest)
+operator fun <T : HStack, U> PathTemplate<T>.plus(rest: PathTemplate<U>): PathTemplate<HCons<U, T>> = AppendedPathTemplate(this, rest)
 
 @JvmName("plusPrefix")
-operator fun <T> UrlScheme<Empty>.plus(rest: UrlScheme<T>): UrlScheme<T> =
-    PrefixedUrlScheme(this, rest)
+operator fun <T> PathTemplate<Empty>.plus(rest: PathTemplate<T>): PathTemplate<T> =
+    PrefixedPathTemplate(this, rest)
 
 @JvmName("plusSuffix")
-operator fun <T> UrlScheme<T>.plus(suffix: UrlScheme<Empty>): UrlScheme<T> =
-    SuffixedUrlScheme(this, suffix)
+operator fun <T> PathTemplate<T>.plus(suffix: PathTemplate<Empty>): PathTemplate<T> =
+    SuffixedPathTemplate(this, suffix)
 
-operator fun <T, U> UrlScheme<T>.plus(rest: UrlScheme<U>): UrlScheme<HStack2<U, T>> =
-    AppendedUrlScheme(this asA tStack(), rest)
+operator fun <T, U> PathTemplate<T>.plus(rest: PathTemplate<U>): PathTemplate<HStack2<U, T>> =
+    AppendedPathTemplate(this asA tStack(), rest)
 
-infix fun <T> UrlScheme<T>.where(p: (T) -> Boolean): UrlScheme<T> = RestrictedUrlScheme<T>(this, p)
+infix fun <T> PathTemplate<T>.where(p: (T) -> Boolean): PathTemplate<T> = RestrictedPathTemplate<T>(this, p)
 
-infix fun <Parts, Mapped> UrlScheme<Parts>.asA(projection: Projection<Parts, Mapped>): UrlScheme<Mapped> =
-    ProjectionUrlScheme<Parts, Mapped>(this, projection)
+infix fun <Parts, Mapped> PathTemplate<Parts>.asA(projection: Projection<Parts, Mapped>): PathTemplate<Mapped> =
+    ProjectedPathTemplate<Parts, Mapped>(this, projection)
