@@ -8,7 +8,6 @@ sealed class TemplatePathElement
 data class Literal(val value: String) : TemplatePathElement()
 data class Variable(val name: String) : TemplatePathElement()
 
-
 interface PathElementType<T> {
     fun parsePathElement(element: String): T?
     fun pathElementFrom(value: T): String = value.toString()
@@ -108,7 +107,7 @@ operator fun <T> VariablePathElement<T>.getValue(obj: Any?, property: KProperty<
     this.named(property.name)
 
 
-class FixedPathElement(private val pathElement: String) : PathElement<Empty>() {
+class LiteralPathElement(private val pathElement: String) : PathElement<Empty>() {
     override fun parsePathElement(element: String) = Empty.takeIf { element == pathElement }
     override fun pathElementFrom(value: Empty) = pathElement
     override fun monitoredPathElementFrom(value: Empty) = Literal(pathElement)
