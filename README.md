@@ -53,7 +53,7 @@ Query parameters are optional and are interpreted by the resource.
 * Restrict: `UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
 * Project: `UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
 
-Krouton includes an _HStack_ type to to create and manipulate heterogenous stacks whose size and element types are known at compile-time.  This means that the type parameter of a `UrlScheme<T>` can represent _multiple_ typed values, parsed from different path elements.
+Krouton includes an _HStack_ type that represents heterogenous stacks whose size and element types are known at compile-time.  This means that the type parameter of a `UrlScheme<T>` can represent _multiple_ typed values, parsed from different path elements.
 
 ## What's with the version number?
 
