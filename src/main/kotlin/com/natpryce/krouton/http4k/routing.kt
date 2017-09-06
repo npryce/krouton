@@ -26,7 +26,7 @@ class PathRouter(
         return routes.firstNonNull { it(request, pathElements) } ?: handlerIfNoMatch(request)
     }
     
-    fun templates(): List<String> = routes.map { it.urlTemplate() }
+    fun urlTemplates(): List<String> = routes.map { it.urlTemplate() }
 }
 
 

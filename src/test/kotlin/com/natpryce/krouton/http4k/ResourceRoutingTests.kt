@@ -14,7 +14,6 @@ import org.http4k.core.Method.POST
 import org.http4k.core.Method.PUT
 import org.http4k.core.Request
 import org.http4k.core.Response
-import org.http4k.core.Response.Companion
 import org.http4k.core.Status.Companion.METHOD_NOT_ALLOWED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
@@ -92,7 +91,7 @@ class ResourceRoutingTests {
             (+"another") { Response(OK)}
         }
         
-        assertThat(router.templates(), equalTo(listOf(
+        assertThat(router.urlTemplates(), equalTo(listOf(
             "/inc/{i}",
             "/inc/{d}",
             "/another"
