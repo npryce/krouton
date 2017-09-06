@@ -8,7 +8,8 @@ import kotlin.reflect.KProperty
 interface PathTemplate<T> {
     fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>?
     fun pathElementsFrom(value: T): List<String>
-    fun monitoredPathElementsFrom(value: T): List<MonitoredPathElement>
+    fun templateElements(): List<UrlTemplateElement>
+    fun monitoredTemplateElementsFrom(value: T): List<UrlTemplateElement>
 }
 
 fun <T> PathTemplate<T>.parse(s: String): T? {
@@ -19,10 +20,13 @@ fun <T> PathTemplate<T>.parse(splitPath: List<String>): T? =
     parsePathElements(splitPath)?.let { (result, unused) -> if (unused.isEmpty()) result else null }
 
 fun <T> PathTemplate<T>.path(value: T): String =
-    joinPath(pathElementsFrom(value), transform = ::encodePathElement)
+    joinPath(pathElementsFrom(value), ::encodePathElement)
 
 fun <T> PathTemplate<T>.monitoredPath(value: T): String =
-    joinPath(monitoredPathElementsFrom(value), ::encodeTemplatePathElement)
+    joinPath(monitoredTemplateElementsFrom(value), ::encodeUrlTemplatePathElement)
+
+fun <T> PathTemplate<T>.toUrlTemplate(): String =
+    joinPath(templateElements(), ::encodeUrlTemplatePathElement)
 
 
 private fun decodePathElement(s: String): String =
@@ -37,7 +41,7 @@ internal fun <T> joinPath(pathElements: List<T>, transform: (T) -> CharSequence)
 internal fun encodePathElement(s: String): String =
     UrlEscapers.urlPathSegmentEscaper().escape(s)
 
-internal fun encodeTemplatePathElement(it: MonitoredPathElement): CharSequence {
+internal fun encodeUrlTemplatePathElement(it: UrlTemplateElement): CharSequence {
     return when (it) {
         is Variable -> "{" + it.name + "}"
         is Literal -> encodePathElement(it.value)
@@ -50,10 +54,11 @@ internal fun encodeTemplatePathElement(it: MonitoredPathElement): CharSequence {
 object root : PathTemplate<Empty> {
     override fun parsePathElements(pathElements: List<String>) = Pair(Empty, pathElements)
     override fun pathElementsFrom(value: Empty) = emptyList<String>()
-    override fun monitoredPathElementsFrom(value: Empty) = emptyList<MonitoredPathElement>()
+    override fun templateElements() = emptyList<UrlTemplateElement>()
+    override fun monitoredTemplateElementsFrom(value: Empty) = emptyList<UrlTemplateElement>()
 }
 
-abstract class PathElement<T> : PathTemplate<T> {
+sealed class PathElement<T> : PathTemplate<T> {
     final override fun parsePathElements(pathElements: List<String>): Pair<T, List<String>>? =
         pathElements.firstOrNull()
             ?.let { parsePathElement(it) }
@@ -61,15 +66,14 @@ abstract class PathElement<T> : PathTemplate<T> {
     
     abstract fun parsePathElement(element: String): T?
     
-    final override fun pathElementsFrom(value: T): List<String> =
-        listOf(pathElementFrom(value))
-    
+    final override fun pathElementsFrom(value: T) = listOf(pathElementFrom(value))
     abstract fun pathElementFrom(value: T): String
     
-    final override fun monitoredPathElementsFrom(value: T): List<MonitoredPathElement> =
-        listOf(monitoredPathElementFrom(value))
+    final override fun templateElements() = listOf(templateElement())
+    abstract fun templateElement(): UrlTemplateElement
     
-    abstract fun monitoredPathElementFrom(value: T): MonitoredPathElement
+    final override fun monitoredTemplateElementsFrom(value: T) = listOf(monitoredPathElementFrom(value))
+    abstract fun monitoredPathElementFrom(value: T): UrlTemplateElement
 }
 
 class VariablePathElement<T>(
@@ -83,7 +87,10 @@ class VariablePathElement<T>(
     override fun pathElementFrom(value: T): String =
         type.pathElementFrom(value)
     
-    override fun monitoredPathElementFrom(value: T): MonitoredPathElement =
+    override fun templateElement() =
+        Variable(name)
+    
+    override fun monitoredPathElementFrom(value: T): UrlTemplateElement =
         if (isMonitored) Literal(pathElementFrom(value)) else Variable(name)
     
     fun named(name: String) = VariablePathElement(type = type, name = name, isMonitored = isMonitored)
@@ -101,22 +108,24 @@ operator fun <T> VariablePathElement<T>.getValue(obj: Any?, property: KProperty<
 class LiteralPathElement(private val pathElement: String) : PathElement<Empty>() {
     override fun parsePathElement(element: String) = Empty.takeIf { element == pathElement }
     override fun pathElementFrom(value: Empty) = pathElement
+    override fun templateElement() = Literal(pathElement)
     override fun monitoredPathElementFrom(value: Empty) = Literal(pathElement)
 }
 
 class AppendedPathTemplate<T : HStack, U>(private val tScheme: PathTemplate<T>, private val uScheme: PathTemplate<U>) : PathTemplate<HCons<U, T>> {
-    override fun parsePathElements(pathElements: List<String>): Pair<HCons<U, T>, List<String>>? {
-        return tScheme.parsePathElements(pathElements)?.let { (t, uPathElements) ->
+    override fun parsePathElements(pathElements: List<String>) =
+        tScheme.parsePathElements(pathElements)?.let { (t, uPathElements) ->
             uScheme.parsePathElements(uPathElements)?.let { (u, rest) -> (t + u) to rest }
         }
-    }
     
-    override fun pathElementsFrom(value: HCons<U, T>): List<String> {
-        return tScheme.pathElementsFrom(value.rest) + uScheme.pathElementsFrom(value.top)
-    }
+    override fun pathElementsFrom(value: HCons<U, T>) =
+        tScheme.pathElementsFrom(value.rest) + uScheme.pathElementsFrom(value.top)
     
-    override fun monitoredPathElementsFrom(value: HCons<U, T>) =
-        tScheme.monitoredPathElementsFrom(value.rest) + uScheme.monitoredPathElementsFrom(value.top)
+    override fun templateElements() =
+        tScheme.templateElements() + uScheme.templateElements()
+    
+    override fun monitoredTemplateElementsFrom(value: HCons<U, T>) =
+        tScheme.monitoredTemplateElementsFrom(value.rest) + uScheme.monitoredTemplateElementsFrom(value.top)
 }
 
 class PrefixedPathTemplate<T>(private val prefix: PathTemplate<Empty>, private val rest: PathTemplate<T>) : PathTemplate<T> {
@@ -127,8 +136,11 @@ class PrefixedPathTemplate<T>(private val prefix: PathTemplate<Empty>, private v
         prefix.parsePathElements(pathElements)
             ?.let { (_, restPathElements) -> rest.parsePathElements(restPathElements) }
     
-    override fun monitoredPathElementsFrom(value: T) =
-        prefix.monitoredPathElementsFrom(Empty) + rest.monitoredPathElementsFrom(value)
+    override fun templateElements() =
+        prefix.templateElements() + rest.templateElements()
+    
+    override fun monitoredTemplateElementsFrom(value: T) =
+        prefix.monitoredTemplateElementsFrom(Empty) + rest.monitoredTemplateElementsFrom(value)
 }
 
 
@@ -143,8 +155,11 @@ class SuffixedPathTemplate<T>(private val first: PathTemplate<T>, private val su
                     ?.let { (_, remainderPathElements) -> Pair(value, remainderPathElements) }
             }
     
-    override fun monitoredPathElementsFrom(value: T) =
-        first.monitoredPathElementsFrom(value) + suffix.monitoredPathElementsFrom(Empty)
+    override fun templateElements() =
+        first.templateElements() + suffix.templateElements()
+    
+    override fun monitoredTemplateElementsFrom(value: T) =
+        first.monitoredTemplateElementsFrom(value) + suffix.monitoredTemplateElementsFrom(Empty)
 }
 
 class RestrictedPathTemplate<T>(private val base: PathTemplate<T>, private val p: (T) -> Boolean) : PathTemplate<T> {
@@ -152,8 +167,8 @@ class RestrictedPathTemplate<T>(private val base: PathTemplate<T>, private val p
         base.parsePathElements(pathElements)?.flatMapFirst { if (p(it)) it else null }
     
     override fun pathElementsFrom(value: T) = base.pathElementsFrom(value)
-    
-    override fun monitoredPathElementsFrom(value: T) = base.monitoredPathElementsFrom(value)
+    override fun templateElements() = base.templateElements()
+    override fun monitoredTemplateElementsFrom(value: T) = base.monitoredTemplateElementsFrom(value)
 }
 
 fun <T> tStack(): Projection<T, HStack1<T>> = projection(
@@ -171,8 +186,11 @@ class ProjectedPathTemplate<T, U>(
     override fun pathElementsFrom(value: U) =
         base.pathElementsFrom(projection.toParts(value))
     
-    override fun monitoredPathElementsFrom(value: U) =
-        base.monitoredPathElementsFrom(projection.toParts(value))
+    override fun templateElements() =
+        base.templateElements()
+    
+    override fun monitoredTemplateElementsFrom(value: U) =
+        base.monitoredTemplateElementsFrom(projection.toParts(value))
 }
 
 private fun <T1, T2, U> Pair<T1, U>?.flatMapFirst(f: (T1) -> T2?): Pair<T2, U>? =

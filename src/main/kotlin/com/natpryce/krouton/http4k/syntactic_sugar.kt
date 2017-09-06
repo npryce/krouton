@@ -14,7 +14,7 @@ interface ResourceRoutesSyntax {
 }
 
 class ResourceRoutesBuilder(private val monitor: RequestMonitor?) : ResourceRoutesSyntax {
-    private val routes = mutableListOf<PathMatchingHttpHandler>()
+    private val routes = mutableListOf<PathMatchingHttpHandler<*>>()
     private var handlerIfNoMatch : HttpHandler = { Response(Status.NOT_FOUND) }
     
     override operator fun <T> PathTemplate<T>.invoke(handler: Request.(T) -> Response) {
@@ -26,14 +26,14 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) : ResourceRout
     }
     
     private fun <T> addPathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response) {
-        routes.add(pathHandler(pathTemplate, handler, monitor))
+        routes.add(PathMatchingHttpHandler(pathTemplate, handler, monitor))
     }
     
     override fun otherwise(handler: HttpHandler) {
         handlerIfNoMatch = handler
     }
     
-    fun toHandler() = pathRouter(routes.toList(), handlerIfNoMatch)
+    fun toHandler() = PathRouter(routes.toList(), handlerIfNoMatch)
 }
 
 

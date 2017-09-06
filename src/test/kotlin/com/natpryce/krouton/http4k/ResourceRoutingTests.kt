@@ -8,11 +8,13 @@ import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
+import com.natpryce.krouton.unaryPlus
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Method.PUT
 import org.http4k.core.Request
 import org.http4k.core.Response
+import org.http4k.core.Response.Companion
 import org.http4k.core.Status.Companion.METHOD_NOT_ALLOWED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
@@ -80,5 +82,20 @@ class ResourceRoutingTests {
         assertThat(router(Request(GET, tester.path("x"))), equalTo(Response(OK).body("got x")))
         assertThat(router(Request(POST, tester.path("y"))), equalTo(Response(OK).body("posted y")))
         assertThat(router(Request(PUT, tester.path("x"))).status, equalTo(METHOD_NOT_ALLOWED))
+    }
+    
+    @Test
+    fun `reports routes as url templates`() {
+        val router = resources {
+            incrementInt { Response(OK) }
+            incrementDouble { Response(OK) }
+            (+"another") { Response(OK)}
+        }
+        
+        assertThat(router.templates(), equalTo(listOf(
+            "/inc/{i}",
+            "/inc/{d}",
+            "/another"
+        )))
     }
 }
