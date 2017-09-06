@@ -25,7 +25,7 @@ class MonitoredRoutingTests {
     }
     
     val app = resources(monitor = monitor) {
-        example { Response(Status.OK) }
+        example { _, _ ->Response(Status.OK) }
     }
     
     @Test

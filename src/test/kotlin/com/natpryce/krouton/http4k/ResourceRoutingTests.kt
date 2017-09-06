@@ -21,13 +21,13 @@ import org.junit.Test
 
 
 class ResourceRoutingTests {
-    val incrementInt = root + "inc" + int.named("i")
-    val incrementDouble = root + "inc" + double.named("d")
+    private val incrementInt = root + "inc" + int.named("i")
+    private val incrementDouble = root + "inc" + double.named("d")
     
     @Test
     fun `routes by path`() {
         val router = resources {
-            incrementInt { n ->
+            incrementInt { _, n ->
                 Response(OK).body((n + 1).toString())
             }
         }
@@ -42,14 +42,14 @@ class ResourceRoutingTests {
     @Test
     fun `overlapping routes`() {
         val router = resources {
-            incrementInt { n ->
+            incrementInt { _, n ->
                 Response(OK).body((n + 1).toString())
             }
-            incrementDouble { d ->
+            incrementDouble { _, d ->
                 Response(OK).body((d + 1.0).toString())
             }
         }
-    
+        
         val response = router(Request(GET, "/inc/10.0"))
         assertThat(response.bodyString(), equalTo("11.0"))
     }
@@ -57,11 +57,11 @@ class ResourceRoutingTests {
     @Test
     fun `returns 404 Not Found for unrecognised URI`() {
         val router = resources {
-            incrementInt { n ->
+            incrementInt { _, n ->
                 Response(OK).body((n + 1).toString())
             }
         }
-    
+        
         assertThat(router(Request(GET, "/blah-blah-blah")).status, equalTo(NOT_FOUND))
         assertThat(router(Request(GET, "/inc/not-a-number")).status, equalTo(NOT_FOUND))
         assertThat(router(Request(GET, "/inc/10.0")).status, equalTo(NOT_FOUND))
@@ -73,11 +73,11 @@ class ResourceRoutingTests {
         
         val router = resources {
             tester methods {
-                GET { Response(OK).body("got $it") }
-                POST { Response(OK).body("posted $it") }
+                GET { _, s -> Response(OK).body("got $s") }
+                POST { _, s -> Response(OK).body("posted $s") }
             }
         }
-    
+        
         assertThat(router(Request(GET, tester.path("x"))), equalTo(Response(OK).body("got x")))
         assertThat(router(Request(POST, tester.path("y"))), equalTo(Response(OK).body("posted y")))
         assertThat(router(Request(PUT, tester.path("x"))).status, equalTo(METHOD_NOT_ALLOWED))
@@ -86,9 +86,9 @@ class ResourceRoutingTests {
     @Test
     fun `reports routes as url templates`() {
         val router = resources {
-            incrementInt { Response(OK) }
-            incrementDouble { Response(OK) }
-            (+"another") { Response(OK)}
+            incrementInt { _, i -> Response(OK) }
+            incrementDouble { _, i -> Response(OK) }
+            (+"another") { _, i -> Response(OK) }
         }
         
         assertThat(router.urlTemplates(), equalTo(listOf(

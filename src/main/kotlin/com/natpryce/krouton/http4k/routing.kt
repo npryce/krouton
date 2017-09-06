@@ -6,6 +6,7 @@ import com.natpryce.krouton.parse
 import com.natpryce.krouton.splitPath
 import com.natpryce.krouton.toUrlTemplate
 import org.http4k.core.HttpHandler
+import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 
@@ -55,4 +56,8 @@ private inline fun <T, U> List<T>.firstNonNull(f: (T) -> U?): U? {
     return null
 }
 
+
+fun <T> methodHandler(requiredMethod: Method, handler: (Request, T) -> Response): (Request, T) -> Response? =
+    fun(request: Request, t: T) =
+        if (request.method == requiredMethod) handler(request, t) else null
 

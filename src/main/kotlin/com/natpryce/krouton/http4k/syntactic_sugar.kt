@@ -8,20 +8,20 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 
 interface ResourceRoutesSyntax {
-    operator fun <T> PathTemplate<T>.invoke(handler: Request.(T) -> Response)
-    infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.()->Unit)
+    operator fun <T> PathTemplate<T>.invoke(handler: (Request, T) -> Response)
+    infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.() -> Unit)
     fun otherwise(handler: HttpHandler)
 }
 
 class ResourceRoutesBuilder(private val monitor: RequestMonitor?) : ResourceRoutesSyntax {
     private val routes = mutableListOf<PathMatchingHttpHandler<*>>()
-    private var handlerIfNoMatch : HttpHandler = { Response(Status.NOT_FOUND) }
+    private var handlerIfNoMatch: HttpHandler = { Response(Status.NOT_FOUND) }
     
-    override operator fun <T> PathTemplate<T>.invoke(handler: Request.(T) -> Response) {
+    override operator fun <T> PathTemplate<T>.invoke(handler: (Request, T) -> Response) {
         addPathHandler(this, handler)
     }
     
-    override infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.()->Unit) {
+    override infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.() -> Unit) {
         addPathHandler(this, MethodRoutesBuilder<T>().apply(block).toHandler())
     }
     
@@ -38,26 +38,25 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) : ResourceRout
 
 
 interface MethodRoutesSyntax<out T> {
-    operator fun Method.invoke(handler: Request.(T)-> Response)
-    fun otherwise(handler: Request.(T) -> Response)
+    operator fun Method.invoke(handler: (Request, T) -> Response)
+    fun otherwise(handler: (Request, T) -> Response)
 }
 
 class MethodRoutesBuilder<T> : MethodRoutesSyntax<T> {
-    private val routes = mutableListOf<Request.(T)-> Response?>()
-    private var handlerIfNoMatch : Request.(T)-> Response = { Response(Status.METHOD_NOT_ALLOWED) }
+    private val routes = mutableListOf<(Request, T) -> Response?>()
+    private var handlerIfNoMatch: (Request, T) -> Response = { _, _ -> Response(Status.METHOD_NOT_ALLOWED) }
     
-    override fun Method.invoke(handler: Request.(T) -> Response) {
+    override fun Method.invoke(handler: (Request, T) -> Response) {
         val requiredMethod = this
-        routes += { t -> if (method == requiredMethod) this.handler(t) else null }
+        routes += methodHandler(requiredMethod, handler)
     }
     
-    override fun otherwise(handler: Request.(T)-> Response) {
+    override fun otherwise(handler: (Request, T) -> Response) {
         handlerIfNoMatch = handler
     }
     
     fun toHandler() =
         router(routes, handlerIfNoMatch)
-    
 }
 
 

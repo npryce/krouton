@@ -40,29 +40,29 @@ val avg: PathTemplate<HStack2<Double, Double>> = +"avg" + operands
 fun calculatorServer(): HttpHandler {
     return resources {
         add methods {
-            GET { (x, y) -> ok(x + y) }
+            GET { _, (x, y) -> ok(x + y) }
         }
         sub methods {
-            GET { (x, y) -> ok(x - y) }
+            GET { _, (x, y) -> ok(x - y) }
         }
         mul methods {
-            GET { (x, y) -> ok(x * y) }
+            GET { _, (x, y) -> ok(x * y) }
         }
         div methods {
-            GET { (x, y) -> ok(x / y) }
+            GET { _, (x, y) -> ok(x / y) }
         }
         max methods {
-            GET { (x, y) -> ok(maxOf(x, y)) }
+            GET { _, (x, y) -> ok(maxOf(x, y)) }
         }
         min methods {
-            GET { (x, y) -> ok(minOf(x, y)) }
+            GET { _, (x, y) -> ok(minOf(x, y)) }
         }
         avg methods {
-            GET { (x, y) -> ok((x + y) / 2.0) }
+            GET { _, (x, y) -> ok((x + y) / 2.0) }
         }
         // reverse routing: turn a path template into a link
         +"average" + operands methods {
-            GET { (x,y) -> Response(MOVED_PERMANENTLY).header("Location", avg.path(x, y)) }
+            GET { _, (x,y) -> Response(MOVED_PERMANENTLY).header("Location", avg.path(x, y)) }
         }
     }
 }
