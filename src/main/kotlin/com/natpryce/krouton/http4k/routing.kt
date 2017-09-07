@@ -11,9 +11,9 @@ import org.http4k.core.Request
 import org.http4k.core.Response
 
 
-fun <T> router(routes: MutableList<Request.(T) -> Response?>, handlerIfNoMatch: Request.(T)->Response) =
+fun <T> router(routes: List<(Request, T) -> Response?>, handlerIfNoMatch: (Request, T)->Response) =
     fun Request.(t: T): Response =
-        routes.firstNonNull { this.it(t) } ?: this.handlerIfNoMatch(t)
+        routes.firstNonNull { it(this, t) } ?: handlerIfNoMatch(this, t)
 
 
 typealias RequestMonitor = (Request, Response, String)->Unit

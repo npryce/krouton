@@ -25,7 +25,7 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
         addPathHandler(this, MethodRoutesBuilder<T>().apply(block).toHandler())
     }
     
-    @JvmName("methodsEmpty")
+    @JvmName("methods0")
     infix fun PathTemplate<Empty>.methods(block: MethodRoutesBuilderEmpty.() -> Unit) {
         addPathHandler(this, MethodRoutesBuilderEmpty().apply(block).toHandler())
     }
