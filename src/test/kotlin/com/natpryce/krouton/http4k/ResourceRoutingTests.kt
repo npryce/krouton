@@ -21,8 +21,10 @@ import org.junit.Test
 
 
 class ResourceRoutingTests {
-    private val incrementInt = root + "inc" + int.named("i")
-    private val incrementDouble = root + "inc" + double.named("d")
+    private val incrementInt =  + "inc" + int.named("i")
+    private val incrementDouble =  + "inc" + double.named("d")
+    private val a = +"a"
+    private val b = +"b"
     
     @Test
     fun `routes by path`() {
@@ -49,10 +51,24 @@ class ResourceRoutingTests {
                 Response(OK).body((d + 1.0).toString())
             }
         }
-        
-        val response = router(Request(GET, "/inc/10.0"))
-        assertThat(response.bodyString(), equalTo("11.0"))
+    
+        assertThat(router(Request(GET, "/inc/10.0")).bodyString(), equalTo("11.0"))
     }
+    
+    @Test
+    fun `route with no parsed path elements`() {
+        val router = resources {
+            a { rq -> Response(OK).body("a") }
+            b methods {
+                GET { rq -> Response(OK).body("b") }
+            }
+        }
+    
+    
+        assertThat(router(Request(GET, "/a")).bodyString(), equalTo("a"))
+        assertThat(router(Request(GET, "/b")).bodyString(), equalTo("b"))
+    }
+    
     
     @Test
     fun `returns 404 Not Found for unrecognised URI`() {

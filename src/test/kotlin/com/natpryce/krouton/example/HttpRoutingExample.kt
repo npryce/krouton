@@ -80,7 +80,7 @@ val reversed = root + "reversed" + string
 // The server that uses the routes
 fun exampleServer() = resources {
     root methods {
-        GET { _, _ -> ok("Hello, World.") }
+        GET { ok("Hello, World.") }
     }
     
     negate methods {

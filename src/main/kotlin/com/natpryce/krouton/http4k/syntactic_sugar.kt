@@ -1,5 +1,6 @@
 package com.natpryce.krouton.http4k
 
+import com.natpryce.krouton.Empty
 import com.natpryce.krouton.PathTemplate
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -7,61 +8,79 @@ import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
 
-interface ResourceRoutesSyntax {
-    operator fun <T> PathTemplate<T>.invoke(handler: (Request, T) -> Response)
-    infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.() -> Unit)
-    fun otherwise(handler: HttpHandler)
-}
 
-class ResourceRoutesBuilder(private val monitor: RequestMonitor?) : ResourceRoutesSyntax {
+class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
     private val routes = mutableListOf<PathMatchingHttpHandler<*>>()
     private var handlerIfNoMatch: HttpHandler = { Response(Status.NOT_FOUND) }
     
-    override operator fun <T> PathTemplate<T>.invoke(handler: (Request, T) -> Response) {
+    operator fun <T> PathTemplate<T>.invoke(handler: (Request, T) -> Response) {
         addPathHandler(this, handler)
     }
     
-    override infix fun <T> PathTemplate<T>.methods(block: MethodRoutesSyntax<T>.() -> Unit) {
+    operator fun PathTemplate<Empty>.invoke(handler: (Request) -> Response) {
+        addPathHandler(this, emptyHandler(handler))
+    }
+    
+    infix fun <T> PathTemplate<T>.methods(block: MethodRoutesBuilder<T>.() -> Unit) {
         addPathHandler(this, MethodRoutesBuilder<T>().apply(block).toHandler())
     }
     
-    private fun <T> addPathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response) {
-        routes.add(PathMatchingHttpHandler(pathTemplate, handler, monitor))
+    @JvmName("methodsEmpty")
+    infix fun PathTemplate<Empty>.methods(block: MethodRoutesBuilderEmpty.() -> Unit) {
+        addPathHandler(this, MethodRoutesBuilderEmpty().apply(block).toHandler())
     }
     
-    override fun otherwise(handler: HttpHandler) {
+    fun otherwise(handler: HttpHandler) {
         handlerIfNoMatch = handler
     }
     
-    fun toHandler() = PathRouter(routes.toList(), handlerIfNoMatch)
+    protected fun <T> addPathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response) {
+        routes.add(PathMatchingHttpHandler(pathTemplate, handler, monitor))
+    }
+    
+    internal fun toHandler() =
+        PathRouter(routes.toList(), handlerIfNoMatch)
 }
 
-
-interface MethodRoutesSyntax<out T> {
-    operator fun Method.invoke(handler: (Request, T) -> Response)
-    fun otherwise(handler: (Request, T) -> Response)
-}
-
-class MethodRoutesBuilder<T> : MethodRoutesSyntax<T> {
+class MethodRoutesBuilder<T> {
     private val routes = mutableListOf<(Request, T) -> Response?>()
     private var handlerIfNoMatch: (Request, T) -> Response = { _, _ -> Response(Status.METHOD_NOT_ALLOWED) }
     
-    override fun Method.invoke(handler: (Request, T) -> Response) {
+    operator fun Method.invoke(handler: (Request, T) -> Response) {
         val requiredMethod = this
         routes += methodHandler(requiredMethod, handler)
     }
     
-    override fun otherwise(handler: (Request, T) -> Response) {
+    fun otherwise(handler: (Request, T) -> Response) {
         handlerIfNoMatch = handler
     }
     
-    fun toHandler() =
+    internal fun toHandler() =
         router(routes, handlerIfNoMatch)
 }
 
+class MethodRoutesBuilderEmpty {
+    private val routes = mutableListOf<(Request,Empty) -> Response?>()
+    private var handlerIfNoMatch: (Request) -> Response = { Response(Status.METHOD_NOT_ALLOWED) }
+    
+    operator fun Method.invoke(handler: (Request) -> Response) {
+        val requiredMethod = this
+        routes += methodHandler(requiredMethod, emptyHandler(handler))
+    }
+    
+    fun otherwise(handler: (Request) -> Response) {
+        handlerIfNoMatch = handler
+    }
+    
+    internal fun toHandler() =
+        router(routes, emptyHandler(handlerIfNoMatch))
+}
 
-inline fun resources(setup: ResourceRoutesSyntax.() -> Unit) =
+private fun emptyHandler(handler: (Request) -> Response) = { r: Request, _: Empty -> handler(r) }
+
+
+fun resources(setup: ResourceRoutesBuilder.() -> Unit) =
     ResourceRoutesBuilder(null).apply(setup).toHandler()
 
-inline fun resources(noinline monitor: RequestMonitor, setup: ResourceRoutesSyntax.() -> Unit) =
+fun resources(monitor: RequestMonitor, setup: ResourceRoutesBuilder.() -> Unit) =
     ResourceRoutesBuilder(monitor).apply(setup).toHandler()
