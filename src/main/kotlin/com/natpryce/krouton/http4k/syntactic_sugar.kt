@@ -7,8 +7,13 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
+import kotlin.DeprecationLevel.ERROR
 
 
+@DslMarker
+annotation class RoutingSyntax
+
+@RoutingSyntax
 class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
     private val routes = mutableListOf<PathMatchingHttpHandler<*>>()
     private var handlerIfNoMatch: HttpHandler = { Response(Status.NOT_FOUND) }
@@ -38,10 +43,14 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
         routes.add(PathMatchingHttpHandler(pathTemplate, handler, monitor))
     }
     
+    @Deprecated(level = ERROR, message = "Don't nest resources blocks")
+    fun resources(setup: ResourceRoutesBuilder.() -> Unit): Nothing = throw UnsupportedOperationException("don't nest resources blocks")
+    
     internal fun toHandler() =
         PathRouter(routes.toList(), handlerIfNoMatch)
 }
 
+@RoutingSyntax
 class MethodRoutesBuilder<T> {
     private val routes = mutableListOf<(Request, T) -> Response?>()
     private var handlerIfNoMatch: (Request, T) -> Response = { _, _ -> Response(Status.METHOD_NOT_ALLOWED) }
@@ -59,8 +68,9 @@ class MethodRoutesBuilder<T> {
         router(routes, handlerIfNoMatch)
 }
 
+@RoutingSyntax
 class MethodRoutesBuilderEmpty {
-    private val routes = mutableListOf<(Request,Empty) -> Response?>()
+    private val routes = mutableListOf<(Request, Empty) -> Response?>()
     private var handlerIfNoMatch: (Request) -> Response = { Response(Status.METHOD_NOT_ALLOWED) }
     
     operator fun Method.invoke(handler: (Request) -> Response) {
