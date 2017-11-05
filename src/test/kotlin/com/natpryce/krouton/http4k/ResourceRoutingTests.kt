@@ -58,9 +58,9 @@ class ResourceRoutingTests {
     @Test
     fun `route with no parsed path elements`() {
         val router = resources {
-            a { rq -> Response(OK).body("a") }
+            a { Response(OK).body("a") }
             b methods {
-                GET { rq -> Response(OK).body("b") }
+                GET { Response(OK).body("b") }
             }
         }
     
@@ -102,9 +102,9 @@ class ResourceRoutingTests {
     @Test
     fun `reports routes as url templates`() {
         val router = resources {
-            incrementInt { _, i -> Response(OK) }
-            incrementDouble { _, i -> Response(OK) }
-            (+"another") { _, i -> Response(OK) }
+            incrementInt { _, _ -> Response(OK) }
+            incrementDouble { _, _ -> Response(OK) }
+            (+"another") { _, _ -> Response(OK) }
         }
         
         assertThat(router.urlTemplates(), equalTo(listOf(
