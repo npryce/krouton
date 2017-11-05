@@ -10,18 +10,23 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 
+class Router<T>(
+    private val routes: List<(Request, T) -> Response?>,
+    private val handlerIfNoMatch: (Request, T) -> Response
+) : (Request, T) -> Response {
+    override fun invoke(request: Request, t: T): Response =
+        routes.firstNonNull { it(request, t) } ?: handlerIfNoMatch(request, t)
+}
 
-fun <T> router(routes: List<(Request, T) -> Response?>, handlerIfNoMatch: (Request, T)->Response) =
-    fun Request.(t: T): Response =
-        routes.firstNonNull { it(this, t) } ?: handlerIfNoMatch(this, t)
+fun <T> router(routes: List<(Request, T) -> Response?>, handlerIfNoMatch: (Request, T) -> Response) =
+    Router<T>(routes, handlerIfNoMatch)
 
-
-typealias RequestMonitor = (Request, Response, String)->Unit
+typealias RequestMonitor = (Request, Response, String) -> Unit
 
 class PathRouter(
     private val routes: List<PathMatchingHttpHandler<*>>,
     private val handlerIfNoMatch: HttpHandler
-): HttpHandler {
+) : HttpHandler {
     override fun invoke(request: Request): Response {
         val pathElements = splitPath(request.uri.path)
         return routes.firstNonNull { it(request, pathElements) } ?: handlerIfNoMatch(request)
@@ -33,20 +38,14 @@ class PathRouter(
 
 class PathMatchingHttpHandler<T>(
     private val pathTemplate: PathTemplate<T>,
-    private val handler: Request.(T) -> Response,
+    private val handler: (Request, T) -> Response,
     private val monitor: RequestMonitor?
-): (Request, List<String>) -> Response? {
-    override fun invoke(request: Request, path: List<String>): Response? {
-        val parsed = pathTemplate.parse(path)
-        if (parsed != null) {
-            val response = request.handler(parsed)
-            monitor?.invoke(request, response, pathTemplate.monitoredPath(parsed))
-            return response
+) : (Request, List<String>) -> Response? {
+    override fun invoke(request: Request, path: List<String>): Response? =
+        pathTemplate.parse(path)?.let { parsed ->
+            handler(request, parsed)
+                .also { monitor?.invoke(request, it, pathTemplate.monitoredPath(parsed)) }
         }
-        else {
-            return null
-        }
-    }
     
     fun urlTemplate(): String = pathTemplate.toUrlTemplate()
 }
