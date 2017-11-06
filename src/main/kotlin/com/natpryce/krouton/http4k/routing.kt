@@ -24,9 +24,6 @@ data class Router<in T, out ROUTE: Route<T>>(
         routes.firstNonNull { it(request, t) } ?: handlerIfNoMatch(request, t)
 }
 
-fun <T, ROUTE: Route<T>> router(routes: List<ROUTE>, handlerIfNoMatch: (Request, T) -> Response) =
-    Router(routes, handlerIfNoMatch)
-
 fun <T, ROUTE> Router<T,ROUTE>.urlTemplates() where ROUTE: Route<T>, ROUTE: ReportsUrlTemplates =
     routes.flatMap { it.urlTemplates() }
 

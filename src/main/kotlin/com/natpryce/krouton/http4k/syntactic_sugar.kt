@@ -67,7 +67,7 @@ class MethodRoutesBuilder<T> {
     }
     
     internal fun toHandler() =
-        router(routes, handlerIfNoMatch)
+        Router(routes, handlerIfNoMatch)
 }
 
 @RoutingSyntax
@@ -85,7 +85,7 @@ class MethodRoutesBuilderEmpty {
     }
     
     internal fun toHandler() =
-        router(routes, emptyHandler(handlerIfNoMatch))
+        Router(routes, emptyHandler(handlerIfNoMatch))
 }
 
 private fun emptyHandler(handler: (Request) -> Response) = { r: Request, _: Empty -> handler(r) }
