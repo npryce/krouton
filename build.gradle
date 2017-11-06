@@ -82,9 +82,11 @@ signing {
     sign configurations.archives
 }
 
-task ossrhAuthentication << {
-    if (!(project.hasProperty('ossrh.username') && project.hasProperty('ossrh.password'))) {
-        throw new InvalidUserDataException("no OSSRH username and/or password!")
+task ossrhAuthentication {
+    doLast {
+        if (!(project.hasProperty('ossrh.username') && project.hasProperty('ossrh.password'))) {
+            throw new InvalidUserDataException("no OSSRH username and/or password!")
+        }
     }
 }
 
