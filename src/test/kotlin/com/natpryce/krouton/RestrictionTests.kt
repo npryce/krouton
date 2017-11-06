@@ -3,11 +3,10 @@ package com.natpryce.krouton
 import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.present
 import org.junit.Test
 
 class RestrictionTests {
-    val route = int where {it > 10}
+    private val route = int where {it > 10}
 
     @Test
     fun restricted_route() {

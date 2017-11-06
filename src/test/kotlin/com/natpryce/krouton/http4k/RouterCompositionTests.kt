@@ -9,15 +9,15 @@ import org.http4k.core.Status.Companion.OK
 import org.junit.Test
 
 class RouterCompositionTests {
-    val routeX = +"x"
-    val appX = resources {
+    private val routeX = +"x"
+    private val appX = resources {
         routeX methods {
             GET { Response(OK).body("x") }
         }
     }
     
-    val routeY = +"y"
-    val appY = resources {
+    private val routeY = +"y"
+    private val appY = resources {
         routeY methods {
             GET { Response(OK).body("y") }
         }

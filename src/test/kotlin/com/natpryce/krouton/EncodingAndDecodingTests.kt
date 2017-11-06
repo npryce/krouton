@@ -13,7 +13,7 @@ class EncodingAndDecodingTests {
         assertEncodeDecode(listOf("hits", "? and the mysterians"), "/hits/%3F%20and%20the%20mysterians")
     }
 
-    fun assertEncodeDecode(pathElements: List<String>, path: String) {
+    private fun assertEncodeDecode(pathElements: List<String>, path: String) {
         assertThat("encoding", joinPath(pathElements, ::encodePathElement), equalTo(path))
         assertThat("decoding", splitPath(path), equalTo(pathElements))
     }

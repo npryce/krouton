@@ -20,7 +20,7 @@ operator fun <T> PathTemplate<T>.plus(suffix: PathTemplate<Empty>): PathTemplate
 operator fun <T, U> PathTemplate<T>.plus(rest: PathTemplate<U>): PathTemplate<HStack2<U, T>> =
     AppendedPathTemplate(this asA tStack(), rest)
 
-infix fun <T> PathTemplate<T>.where(p: (T) -> Boolean): PathTemplate<T> = RestrictedPathTemplate<T>(this, p)
+infix fun <T> PathTemplate<T>.where(p: (T) -> Boolean): PathTemplate<T> = RestrictedPathTemplate(this, p)
 
 infix fun <Parts, Mapped> PathTemplate<Parts>.asA(projection: Projection<Parts, Mapped>): PathTemplate<Mapped> =
-    ProjectedPathTemplate<Parts, Mapped>(this, projection)
+    ProjectedPathTemplate(this, projection)

@@ -16,15 +16,15 @@ import org.http4k.core.Status
 import org.junit.Test
 
 class MonitoredRoutingTests {
-    var lastEvent: Triple<Request, Response, String>? = null
+    private var lastEvent: Triple<Request, Response, String>? = null
     
-    val example: PathTemplate<HStack2<Int, String>> = root + "example" + string.named("name").monitored() + int.named("x")
+    private val example: PathTemplate<HStack2<Int, String>> = root + "example" + string.named("name").monitored() + int.named("x")
     
-    val monitor : RequestMonitor = { request, response, pathTemplate ->
+    private val monitor : RequestMonitor = { request, response, pathTemplate ->
         lastEvent = Triple(request, response, pathTemplate)
     }
     
-    val app = resources(monitor = monitor) {
+    private val app = resources(monitor = monitor) {
         example { _, _ -> Response(Status.OK) }
     }
     

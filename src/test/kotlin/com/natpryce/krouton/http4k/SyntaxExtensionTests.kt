@@ -15,11 +15,11 @@ import java.time.LocalTime
 
 
 class SyntaxExtensionTests {
-    val internalRoot = +"internal"
-    val status = internalRoot + "status"
-    val config = internalRoot + "config"
+    private val internalRoot = +"internal"
+    private val status = internalRoot + "status"
+    private val config = internalRoot + "config"
     
-    fun ResourceRoutesBuilder.canBeMonitored() {
+    private fun ResourceRoutesBuilder.canBeMonitored() {
         status methods {
             GET {
                 Response(OK).body("it's ${LocalTime.now()} and all's well")

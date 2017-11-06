@@ -5,11 +5,10 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.isEmptyString
 import com.natpryce.hamkrest.present
 import com.natpryce.krouton.Empty
-import com.natpryce.krouton.HStack2
 import com.natpryce.krouton.HStack3
-import com.natpryce.krouton.Projection
 import com.natpryce.krouton.PathTemplate
 import com.natpryce.krouton.PathTemplate2
+import com.natpryce.krouton.Projection
 import com.natpryce.krouton.asA
 import com.natpryce.krouton.component1
 import com.natpryce.krouton.component2
@@ -158,8 +157,8 @@ class HttpRoutingExample {
     }
     
     companion object {
-        val port = 8965
-        val server = exampleServer().asServer(SunHttp(port))
+        private val port = 8965
+        private val server = exampleServer().asServer(SunHttp(port))
         val serverUri = URI("http://127.0.0.1:$port/")
         
         @BeforeClass

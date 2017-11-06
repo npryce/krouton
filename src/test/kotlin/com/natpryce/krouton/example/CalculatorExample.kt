@@ -84,8 +84,8 @@ class CountersTest {
             }
     
     companion object {
-        val port = 8954
-        val server = calculatorServer().asServer(SunHttp(port))
+        private val port = 8954
+        private val server = calculatorServer().asServer(SunHttp(port))
         val serverUri = URI("http://127.0.0.1:$port/")
         
         @BeforeClass

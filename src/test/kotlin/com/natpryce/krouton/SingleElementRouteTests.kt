@@ -55,7 +55,7 @@ class SingleElementRouteTests {
     
     @Test
     fun enums() {
-        val axis : VariablePathElement<Axis> by enum<Axis>()
+        val axis : VariablePathElement<Axis> by enum()
         
         assertThat(axis.parse("/X"), equalTo(Axis.X))
         assertThat(axis.parse("/Y"), equalTo(Axis.Y))
