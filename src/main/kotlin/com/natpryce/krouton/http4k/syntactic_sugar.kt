@@ -15,7 +15,7 @@ annotation class RoutingSyntax
 
 @RoutingSyntax
 class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
-    private val routes = mutableListOf<PathMatchingHttpHandler<*>>()
+    private val routes = mutableListOf<PathParsingRoute<*>>()
     private var handlerIfNoMatch: HttpHandler = { Response(Status.NOT_FOUND) }
     
     operator fun <T> PathTemplate<T>.invoke(handler: (Request, T) -> Response) {
@@ -39,15 +39,17 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
         handlerIfNoMatch = handler
     }
     
-    protected fun <T> addPathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response) {
-        routes.add(PathMatchingHttpHandler(pathTemplate, handler, monitor))
+    private fun <T> addPathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response) {
+        routes.add(PathParsingRoute(pathTemplate, handler, monitor))
     }
     
+    @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated(level = ERROR, message = "Don't nest resources blocks")
-    fun resources(setup: ResourceRoutesBuilder.() -> Unit): Nothing = throw UnsupportedOperationException("don't nest resources blocks")
+    fun resources(setup: ResourceRoutesBuilder.() -> Unit): Nothing =
+        throw UnsupportedOperationException("don't nest resources blocks")
     
     internal fun toHandler() =
-        PathRouter(routes.toList(), handlerIfNoMatch)
+        ResourceRouter(routes.toList(), handlerIfNoMatch)
 }
 
 @RoutingSyntax

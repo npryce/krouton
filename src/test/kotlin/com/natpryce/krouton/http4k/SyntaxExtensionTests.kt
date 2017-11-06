@@ -14,7 +14,7 @@ import org.junit.Test
 import java.time.LocalTime
 
 
-class ComposingRoutesTests {
+class SyntaxExtensionTests {
     val internalRoot = +"internal"
     val status = internalRoot + "status"
     val config = internalRoot + "config"

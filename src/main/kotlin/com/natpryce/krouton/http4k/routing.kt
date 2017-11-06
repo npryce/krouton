@@ -10,44 +10,56 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 
-class Router<T>(
-    private val routes: List<(Request, T) -> Response?>,
-    private val handlerIfNoMatch: (Request, T) -> Response
+typealias Route<T> = (Request, T) -> Response?
+
+interface ReportsUrlTemplates {
+    fun urlTemplates(): List<String>
+}
+
+data class Router<in T, out ROUTE: Route<T>>(
+    val routes: List<ROUTE>,
+    val handlerIfNoMatch: (Request, T) -> Response
 ) : (Request, T) -> Response {
     override fun invoke(request: Request, t: T): Response =
         routes.firstNonNull { it(request, t) } ?: handlerIfNoMatch(request, t)
 }
 
-fun <T> router(routes: List<(Request, T) -> Response?>, handlerIfNoMatch: (Request, T) -> Response) =
-    Router<T>(routes, handlerIfNoMatch)
+fun <T, ROUTE: Route<T>> router(routes: List<ROUTE>, handlerIfNoMatch: (Request, T) -> Response) =
+    Router(routes, handlerIfNoMatch)
+
+fun <T, ROUTE> Router<T,ROUTE>.urlTemplates() where ROUTE: Route<T>, ROUTE: ReportsUrlTemplates =
+    routes.flatMap { it.urlTemplates() }
+
+
+interface ResourceRoute : Route<List<String>>, ReportsUrlTemplates
+
+data class ResourceRouter(val router: Router<List<String>, ResourceRoute>):
+    HttpHandler
+{
+    constructor(routes: List<ResourceRoute>, handlerIfNoMatch: HttpHandler):
+        this(Router(routes, { rq, _ -> handlerIfNoMatch(rq)}))
+    
+    override fun invoke(request: Request) =
+        router(request, splitPath(request.uri.path))
+    
+    fun urlTemplates() =
+        router.urlTemplates()
+}
 
 typealias RequestMonitor = (Request, Response, String) -> Unit
 
-class PathRouter(
-    private val routes: List<PathMatchingHttpHandler<*>>,
-    private val handlerIfNoMatch: HttpHandler
-) : HttpHandler {
-    override fun invoke(request: Request): Response {
-        val pathElements = splitPath(request.uri.path)
-        return routes.firstNonNull { it(request, pathElements) } ?: handlerIfNoMatch(request)
-    }
-    
-    fun urlTemplates(): List<String> = routes.map { it.urlTemplate() }
-}
-
-
-class PathMatchingHttpHandler<T>(
+data class PathParsingRoute<T>(
     private val pathTemplate: PathTemplate<T>,
     private val handler: (Request, T) -> Response,
     private val monitor: RequestMonitor?
-) : (Request, List<String>) -> Response? {
+) : ResourceRoute {
     override fun invoke(request: Request, path: List<String>): Response? =
         pathTemplate.parse(path)?.let { parsed ->
             handler(request, parsed)
                 .also { monitor?.invoke(request, it, pathTemplate.monitoredPath(parsed)) }
         }
     
-    fun urlTemplate(): String = pathTemplate.toUrlTemplate()
+    override fun urlTemplates() = listOf(pathTemplate.toUrlTemplate())
 }
 
 private inline fun <T, U> List<T>.firstNonNull(f: (T) -> U?): U? {
@@ -55,8 +67,6 @@ private inline fun <T, U> List<T>.firstNonNull(f: (T) -> U?): U? {
     return null
 }
 
-
 fun <T> methodHandler(requiredMethod: Method, handler: (Request, T) -> Response): (Request, T) -> Response? =
     fun(request: Request, t: T) =
         if (request.method == requiredMethod) handler(request, t) else null
-
