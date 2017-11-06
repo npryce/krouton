@@ -38,6 +38,7 @@ class RouterCompositionTests {
         }
         
         assertThat(composedApp.urlTemplates(), equalTo(monolithicApp.urlTemplates()))
+        assertThat(composedApp.router.handlerIfNoMatch, equalTo(appY.router.handlerIfNoMatch))
     }
 }
 
