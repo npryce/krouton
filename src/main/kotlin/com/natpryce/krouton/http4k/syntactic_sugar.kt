@@ -48,7 +48,7 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
     fun resources(setup: ResourceRoutesBuilder.() -> Unit): Nothing =
         throw UnsupportedOperationException("don't nest resources blocks")
     
-    internal fun toHandler() =
+    fun toHandler() =
         ResourceRouter(routes.toList(), handlerIfNoMatch)
 }
 
@@ -66,7 +66,7 @@ class MethodRoutesBuilder<T> {
         handlerIfNoMatch = handler
     }
     
-    internal fun toHandler() =
+    fun toHandler() =
         Router(routes, handlerIfNoMatch)
 }
 
@@ -84,7 +84,7 @@ class MethodRoutesBuilderEmpty {
         handlerIfNoMatch = handler
     }
     
-    internal fun toHandler() =
+    fun toHandler() =
         Router(routes, emptyHandler(handlerIfNoMatch))
 }
 
