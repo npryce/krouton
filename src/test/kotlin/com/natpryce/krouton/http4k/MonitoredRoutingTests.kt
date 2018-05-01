@@ -1,5 +1,6 @@
 package com.natpryce.krouton.http4k
 
+import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.HStack2
@@ -18,21 +19,40 @@ import org.junit.Test
 class MonitoredRoutingTests {
     private var lastEvent: Triple<Request, Response, String>? = null
     
-    private val example: PathTemplate<HStack2<Int, String>> = root + "example" + string.named("name").monitored() + int.named("x")
+    private val examplePath: PathTemplate<HStack2<Int, String>> =
+        root + "example" + string.named("name").monitored() + int.named("x")
     
     private val monitor : RequestMonitor = { request, response, pathTemplate ->
         lastEvent = Triple(request, response, pathTemplate)
     }
     
-    private val app = resources(monitor = monitor) {
-        example { _, _ -> Response(Status.OK) }
+    private val app: ResourceRouter = resources(monitor = monitor) {
+        examplePath { _, _ -> Response(Status.OK) }
     }
     
     @Test
     fun `reports path template to monitor`() {
-        val request = Request(GET, example.path("bob", 10))
+        val request = Request(GET, examplePath.path("alice", 10))
         val response = app(request)
         
-        assertThat(lastEvent, equalTo(Triple(request, response, "/example/bob/{x}")))
+        assertThat(lastEvent, equalTo(Triple(request, response, "/example/alice/{x}")))
     }
+    
+    @Test
+    fun `can apply a monitor to an existing Router`() {
+        var differentDestination : Triple<Request,Response, String>? = null
+    
+        val differentMonitor : RequestMonitor = { request, response, pathTemplate ->
+            differentDestination = Triple(request, response, pathTemplate)
+        }
+        
+        val divertingApp = app.withMonitor(differentMonitor)
+    
+        val request = Request(GET, examplePath.path("bob", 20))
+        val response = divertingApp(request)
+        
+        assertThat(differentDestination, equalTo(Triple(request, response, "/example/bob/{x}")))
+        assertThat(lastEvent, absent())
+    }
+    
 }
