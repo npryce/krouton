@@ -10,18 +10,34 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 
+/**
+ * A route might map a request and some data parsed from that request to a response.
+ */
 typealias Route<T> = (Request, T) -> Response?
 
+/**
+ * The capability to describe its routing as URL templates (a subset of RFC 6570)
+ */
 interface ReportsUrlTemplates {
     fun urlTemplates(): List<String>
 }
 
-typealias RequestMonitor = (Request, Response, String) -> Unit
+/**
+ * An event listener that reports a request & response, and the URL template that matched it
+ */
+typealias RequestMonitor = (request: Request, response: Response, urlTemplate: String) -> Unit
 
+/**
+ * The capability to be monitored by a RequestMonitor
+ */
 interface Monitored<out T : Monitored<T>> {
     fun withMonitor(monitor: RequestMonitor): T
 }
 
+/**
+ *  A Krouton handler that dispatches to the first element of the `routes` that matches the request,
+ *  and invokes `handlerIfNoMatch` if none of them match.
+ */
 data class Router<in T, out ROUTE : Route<T>>(
     val routes: List<ROUTE>,
     val handlerIfNoMatch: (Request, T) -> Response
@@ -33,21 +49,32 @@ data class Router<in T, out ROUTE : Route<T>>(
 }
 
 
+/**
+ * Attaches a monitor to all `routes` if they can be monitored
+ */
 fun <T, ROUTE> Router<T, ROUTE>.withMonitor(monitor: RequestMonitor)
     where ROUTE : Route<T>,
           ROUTE : Monitored<ROUTE> =
     copy(routes = routes.map { it.withMonitor(monitor) })
 
 
+/**
+ * Returns the URL templates of all `routes` if they can report their routing rule as a URL template
+ */
 fun <T, ROUTE> Router<T, ROUTE>.urlTemplates()
     where ROUTE : Route<T>,
           ROUTE : ReportsUrlTemplates =
     routes.flatMap { it.urlTemplates() }
 
 
+/**
+ * A route for one resource, identified by a URL template, which can be monitored.
+ */
 interface ResourceRoute : Route<List<String>>, ReportsUrlTemplates, Monitored<ResourceRoute>
 
-
+/**
+ * A ResourceRouter is an HttpHandler that can route the request to one of its ResourceRoutes
+ */
 data class ResourceRouter(val router: Router<List<String>, ResourceRoute>) :
     HttpHandler,
     ReportsUrlTemplates,
@@ -66,6 +93,9 @@ data class ResourceRouter(val router: Router<List<String>, ResourceRoute>) :
         copy(router = router.withMonitor(monitor))
 }
 
+/**
+ * A ResourceRoute that uses Krouton PathTemplates to match paths.
+ */
 data class PathParsingRoute<T>(
     private val pathTemplate: PathTemplate<T>,
     private val handler: (Request, T) -> Response,
