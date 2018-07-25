@@ -3,7 +3,7 @@
 
 Typesafe, compositional routing and reverse routing for [Kotlin](https://kotlinlang.org) web apps and HTTP microservices.
 
-[![Kotlin](https://img.shields.io/badge/kotlin-1.1.4-blue.svg)](http://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/kotlin-1.2.51-blue.svg)](http://kotlinlang.org)
 [![Build Status](https://travis-ci.org/npryce/krouton.svg?branch=master)](https://travis-ci.org/npryce/krouton)
 [![Maven Central](https://img.shields.io/maven-central/v/com.natpryce/krouton.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.natpryce%22%20AND%20a%3A%22krouton%22)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http//www.apache.org/licenses/LICENSE-2.0)

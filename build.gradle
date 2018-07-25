@@ -5,8 +5,8 @@ println "building version ${version}"
 
 
 buildscript {
-    ext.kotlin_version = '1.1.51'
-    ext.http4k_version = '2.23.4'
+    ext.kotlin_version = '1.2.51'
+    ext.http4k_version = '3.33.2'
     repositories {
         mavenCentral()
         jcenter()
