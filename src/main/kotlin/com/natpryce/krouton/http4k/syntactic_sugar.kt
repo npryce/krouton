@@ -93,6 +93,3 @@ private fun emptyHandler(handler: (Request) -> Response) = { r: Request, _: Empt
 
 fun resources(setup: ResourceRoutesBuilder.() -> Unit) =
     ResourceRoutesBuilder().apply(setup).toHandler()
-
-fun resources(monitor: RequestMonitor, setup: ResourceRoutesBuilder.() -> Unit) =
-    ResourceRoutesBuilder().apply(setup).toHandler()

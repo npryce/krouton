@@ -26,11 +26,6 @@ interface ReportsUrlTemplates {
 }
 
 /**
- * An event listener that reports a request & response, and the URL template that matched it
- */
-typealias RequestMonitor = (request: Request, response: Response, urlTemplate: String) -> Unit
-
-/**
  *  A Krouton handler that dispatches to the first element of the `routes` that matches the request,
  *  and invokes `handlerIfNoMatch` if none of them match.
  */
