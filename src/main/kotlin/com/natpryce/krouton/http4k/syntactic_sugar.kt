@@ -14,7 +14,7 @@ import kotlin.DeprecationLevel.ERROR
 annotation class RoutingSyntax
 
 @RoutingSyntax
-class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
+class ResourceRoutesBuilder {
     private val routes = mutableListOf<PathParsingRoute<*>>()
     private var handlerIfNoMatch: HttpHandler = { Response(Status.NOT_FOUND) }
     
@@ -40,7 +40,7 @@ class ResourceRoutesBuilder(private val monitor: RequestMonitor?) {
     }
     
     private fun <T> addPathHandler(pathTemplate: PathTemplate<T>, handler: Request.(T) -> Response) {
-        routes.add(PathParsingRoute(pathTemplate, handler, monitor))
+        routes.add(PathParsingRoute(pathTemplate, handler))
     }
     
     @Suppress("DeprecatedCallableAddReplaceWith")
@@ -92,7 +92,7 @@ private fun emptyHandler(handler: (Request) -> Response) = { r: Request, _: Empt
 
 
 fun resources(setup: ResourceRoutesBuilder.() -> Unit) =
-    ResourceRoutesBuilder(null).apply(setup).toHandler()
+    ResourceRoutesBuilder().apply(setup).toHandler()
 
 fun resources(monitor: RequestMonitor, setup: ResourceRoutesBuilder.() -> Unit) =
-    ResourceRoutesBuilder(monitor).apply(setup).toHandler()
+    ResourceRoutesBuilder().apply(setup).toHandler()

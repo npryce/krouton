@@ -1,11 +1,12 @@
 package com.natpryce.krouton.http4k
 
-import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.cast
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.krouton.HStack2
-import com.natpryce.krouton.PathTemplate
+import com.natpryce.hamkrest.has
+import com.natpryce.krouton.PathTemplate2
 import com.natpryce.krouton.int
+import com.natpryce.krouton.monitoredPath
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
@@ -14,45 +15,30 @@ import org.http4k.core.Method.GET
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.core.UriTemplate
+import org.http4k.routing.RoutedRequest
+import org.http4k.routing.RoutedResponse
 import org.junit.Test
 
 class MonitoredRoutingTests {
-    private var lastEvent: Triple<Request, Response, String>? = null
-    
-    private val examplePath: PathTemplate<HStack2<Int, String>> =
+    private val examplePath: PathTemplate2<String, Int> =
         root + "example" + string.named("name").monitored() + int.named("x")
     
-    private val monitor : RequestMonitor = { request, response, pathTemplate ->
-        lastEvent = Triple(request, response, pathTemplate)
-    }
-    
-    private val app: ResourceRouter = resources(monitor = monitor) {
-        examplePath { _, _ -> Response(Status.OK) }
-    }
     
     @Test
-    fun `reports path template to monitor`() {
-        val request = Request(GET, examplePath.path("alice", 10))
-        val response = app(request)
-        
-        assertThat(lastEvent, equalTo(Triple(request, response, "/example/alice/{x}")))
-    }
-    
-    @Test
-    fun `can apply a monitor to an existing Router`() {
-        var differentDestination : Triple<Request,Response, String>? = null
-    
-        val differentMonitor : RequestMonitor = { request, response, pathTemplate ->
-            differentDestination = Triple(request, response, pathTemplate)
+    fun `reports matched path template to app and caller`() {
+        val app: ResourceRouter = resources {
+            examplePath { rq, parsedElements ->
+                val expectedTemplate = UriTemplate.from(examplePath.monitoredPath(parsedElements))
+                
+                assertThat(rq, cast(has(RoutedRequest::xUriTemplate, equalTo(expectedTemplate))))
+                
+                Response(Status.OK)
+            }
         }
-        
-        val divertingApp = app.withMonitor(differentMonitor)
     
-        val request = Request(GET, examplePath.path("bob", 20))
-        val response = divertingApp(request)
+        val response = app(Request(GET, examplePath.path("alice", 10)))
         
-        assertThat(differentDestination, equalTo(Triple(request, response, "/example/bob/{x}")))
-        assertThat(lastEvent, absent())
+        assertThat(response, cast(has(RoutedResponse::xUriTemplate, equalTo(UriTemplate.from("/example/alice/{x}")))))
     }
-    
 }
