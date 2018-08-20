@@ -46,14 +46,14 @@ Query parameters are optional and are interpreted by the resource.
 ## Route composition
 
 * Append: 
-    * `UrlScheme<T> + UrlScheme<U> -> UrlScheme<TCons<T,U>>`
-    * `UrlScheme<Empty> + UrlScheme<T> -> UrlScheme<T>`
-    * `UrlScheme<T> + UrlScheme<Empty> -> UrlScheme<T>`
+    * `UrlScheme<T> + UrlScheme<U> -> UrlScheme<Tuple2<T,U>>`
+    * `+` operator supports appending paths for scalars and tuples, forming paths for tuples with up to five elements
+    * `UrlScheme<Unit> + UrlScheme<T> -> UrlScheme<T>`
+    * `UrlScheme<T> + UrlScheme<Unit> -> UrlScheme<T>`
 * Append fixed path element: `UrlScheme<T> + String -> UrlScheme<T>`
 * Restrict: `UrlScheme<T> where ((T)->Boolean) -> UrlScheme<T>`
 * Project: `UrlScheme<T> asA Projection<T,U> -> UrlScheme<U>`
 
-Krouton includes an _HStack_ type that represents heterogenous stacks whose size and element types are known at compile-time.  This means that the type parameter of a `UrlScheme<T>` can represent _multiple_ typed values, parsed from different path elements.
 
 ## What's with the version number?
 
