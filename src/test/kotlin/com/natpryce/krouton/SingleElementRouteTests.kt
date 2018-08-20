@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.junit.Test
 import java.time.LocalDate
-import java.util.*
+import java.util.Locale
 
 class SingleElementRouteTests {
     @Test
