@@ -12,6 +12,14 @@ interface PathTemplate<T> {
     fun monitoredTemplateElementsFrom(value: T): List<UrlTemplateElement>
 }
 
+typealias PathTemplate0 = PathTemplate<Unit>
+typealias PathTemplate1<A> = PathTemplate<A>
+typealias PathTemplate2<A, B> = PathTemplate<Tuple2<A, B>>
+typealias PathTemplate3<A, B, C> = PathTemplate<Tuple3<A, B, C>>
+typealias PathTemplate4<A, B, C, D> = PathTemplate<Tuple4<A, B, C, D>>
+typealias PathTemplate5<A, B, C, D, E> = PathTemplate<Tuple5<A, B, C, D, E>>
+
+
 fun <T> PathTemplate<T>.parse(s: String): T? {
     return parse(splitPath(s))
 }
@@ -51,11 +59,11 @@ internal fun encodeUrlTemplatePathElement(it: UrlTemplateElement): CharSequence 
 /**
  * The root of path, <code>/</code>.
  */
-object root : PathTemplate<Empty> {
-    override fun parsePathElements(pathElements: List<String>) = Pair(Empty, pathElements)
-    override fun pathElementsFrom(value: Empty) = emptyList<String>()
+object root : PathTemplate<Unit> {
+    override fun parsePathElements(pathElements: List<String>) = Pair(Unit, pathElements)
+    override fun pathElementsFrom(value: Unit) = emptyList<String>()
     override fun templateElements() = emptyList<UrlTemplateElement>()
-    override fun monitoredTemplateElementsFrom(value: Empty) = emptyList<UrlTemplateElement>()
+    override fun monitoredTemplateElementsFrom(value: Unit) = emptyList<UrlTemplateElement>()
 }
 
 sealed class PathElement<T> : PathTemplate<T> {
@@ -105,32 +113,32 @@ operator fun <T> VariablePathElement<T>.getValue(obj: Any?, property: KProperty<
     this.named(property.name)
 
 
-class LiteralPathElement(private val pathElement: String) : PathElement<Empty>() {
-    override fun parsePathElement(element: String) = Empty.takeIf { element == pathElement }
-    override fun pathElementFrom(value: Empty) = pathElement
+class LiteralPathElement(private val pathElement: String) : PathElement<Unit>() {
+    override fun parsePathElement(element: String) = Unit.takeIf { element == pathElement }
+    override fun pathElementFrom(value: Unit) = pathElement
     override fun templateElement() = Literal(pathElement)
-    override fun monitoredPathElementFrom(value: Empty) = Literal(pathElement)
+    override fun monitoredPathElementFrom(value: Unit) = Literal(pathElement)
 }
 
-class AppendedPathTemplate<T : HStack, U>(private val tScheme: PathTemplate<T>, private val uScheme: PathTemplate<U>) : PathTemplate<HCons<U, T>> {
+class AppendedPathTemplate<T, U>(private val tScheme: PathTemplate<T>, private val uScheme: PathTemplate<U>) : PathTemplate<Tuple2<T, U>> {
     override fun parsePathElements(pathElements: List<String>) =
         tScheme.parsePathElements(pathElements)?.let { (t, uPathElements) ->
-            uScheme.parsePathElements(uPathElements)?.let { (u, rest) -> (t + u) to rest }
+            uScheme.parsePathElements(uPathElements)?.let { (u, rest) -> tuple(t, u) to rest }
         }
     
-    override fun pathElementsFrom(value: HCons<U, T>) =
-        tScheme.pathElementsFrom(value.rest) + uScheme.pathElementsFrom(value.top)
+    override fun pathElementsFrom(value: Tuple2<T,U>) =
+        tScheme.pathElementsFrom(value.val1) + uScheme.pathElementsFrom(value.val2)
     
     override fun templateElements() =
         tScheme.templateElements() + uScheme.templateElements()
     
-    override fun monitoredTemplateElementsFrom(value: HCons<U, T>) =
-        tScheme.monitoredTemplateElementsFrom(value.rest) + uScheme.monitoredTemplateElementsFrom(value.top)
+    override fun monitoredTemplateElementsFrom(value: Tuple2<T,U>) =
+        tScheme.monitoredTemplateElementsFrom(value.val1) + uScheme.monitoredTemplateElementsFrom(value.val2)
 }
 
-class PrefixedPathTemplate<T>(private val prefix: PathTemplate<Empty>, private val rest: PathTemplate<T>) : PathTemplate<T> {
+class PrefixedPathTemplate<T>(private val prefix: PathTemplate<Unit>, private val rest: PathTemplate<T>) : PathTemplate<T> {
     override fun pathElementsFrom(value: T) =
-        prefix.pathElementsFrom(Empty) + rest.pathElementsFrom(value)
+        prefix.pathElementsFrom(Unit) + rest.pathElementsFrom(value)
     
     override fun parsePathElements(pathElements: List<String>) =
         prefix.parsePathElements(pathElements)
@@ -140,13 +148,13 @@ class PrefixedPathTemplate<T>(private val prefix: PathTemplate<Empty>, private v
         prefix.templateElements() + rest.templateElements()
     
     override fun monitoredTemplateElementsFrom(value: T) =
-        prefix.monitoredTemplateElementsFrom(Empty) + rest.monitoredTemplateElementsFrom(value)
+        prefix.monitoredTemplateElementsFrom(Unit) + rest.monitoredTemplateElementsFrom(value)
 }
 
 
-class SuffixedPathTemplate<T>(private val first: PathTemplate<T>, private val suffix: PathTemplate<Empty>) : PathTemplate<T> {
+class SuffixedPathTemplate<T>(private val first: PathTemplate<T>, private val suffix: PathTemplate<Unit>) : PathTemplate<T> {
     override fun pathElementsFrom(value: T) =
-        first.pathElementsFrom(value) + suffix.pathElementsFrom(Empty)
+        first.pathElementsFrom(value) + suffix.pathElementsFrom(Unit)
     
     override fun parsePathElements(pathElements: List<String>) =
         first.parsePathElements(pathElements)
@@ -159,7 +167,7 @@ class SuffixedPathTemplate<T>(private val first: PathTemplate<T>, private val su
         first.templateElements() + suffix.templateElements()
     
     override fun monitoredTemplateElementsFrom(value: T) =
-        first.monitoredTemplateElementsFrom(value) + suffix.monitoredTemplateElementsFrom(Empty)
+        first.monitoredTemplateElementsFrom(value) + suffix.monitoredTemplateElementsFrom(Unit)
 }
 
 class RestrictedPathTemplate<T>(private val base: PathTemplate<T>, private val p: (T) -> Boolean) : PathTemplate<T> {
@@ -170,11 +178,6 @@ class RestrictedPathTemplate<T>(private val base: PathTemplate<T>, private val p
     override fun templateElements() = base.templateElements()
     override fun monitoredTemplateElementsFrom(value: T) = base.monitoredTemplateElementsFrom(value)
 }
-
-fun <T> tStack(): Projection<T, HStack1<T>> = projection(
-    fromParts = { t -> Empty + t },
-    toParts = { (t) -> t }
-)
 
 class ProjectedPathTemplate<T, U>(
     private val base: PathTemplate<T>,
@@ -194,5 +197,4 @@ class ProjectedPathTemplate<T, U>(
 }
 
 private fun <T1, T2, U> Pair<T1, U>?.flatMapFirst(f: (T1) -> T2?): Pair<T2, U>? =
-    this?.let { f(first)?.let { it to second } }
-
+    this?.run { f(first)?.to(second) }

@@ -2,11 +2,7 @@ package com.natpryce.krouton.example
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.krouton.HStack2
-import com.natpryce.krouton.PathTemplate
 import com.natpryce.krouton.PathTemplate2
-import com.natpryce.krouton.component1
-import com.natpryce.krouton.component2
 import com.natpryce.krouton.double
 import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.path
@@ -27,15 +23,15 @@ import java.net.HttpURLConnection
 import java.net.URI
 
 
-val operands: PathTemplate<HStack2<Double, Double>> = double + double
+val operands: PathTemplate2<Double, Double> = double + double
 
 val add: PathTemplate2<Double, Double> = +"add" + operands
 val sub: PathTemplate2<Double, Double> = +"sub" + operands
 val mul: PathTemplate2<Double, Double> = +"mul" + operands
-val div: PathTemplate<HStack2<Double, Double>> = +"div" + operands
-val max: PathTemplate<HStack2<Double, Double>> = +"max" + operands
-val min: PathTemplate<HStack2<Double, Double>> = +"min" + operands
-val avg: PathTemplate<HStack2<Double, Double>> = +"avg" + operands
+val div: PathTemplate2<Double, Double> = +"div" + operands
+val max: PathTemplate2<Double, Double> = +"max" + operands
+val min: PathTemplate2<Double, Double> = +"min" + operands
+val avg: PathTemplate2<Double, Double> = +"avg" + operands
 
 fun calculatorServer(): HttpHandler {
     return resources {

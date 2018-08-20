@@ -8,22 +8,22 @@ import org.junit.Test
 class CompositionTests {
     @Test
     fun route_prefixed_single_element() {
-        assertThat((+"foo" + string).parse("/foo/bob"), equalTo("bob"))
-        assertThat((+"bar" + int).parse("/bar/99"), equalTo(99))
+        assertThat((root +"foo" + string).parse("/foo/bob"), equalTo("bob"))
+        assertThat((root +"bar" + int).parse("/bar/99"), equalTo(99))
     }
     
     @Test
     fun reverse_route_for_prefixed_single_element() {
-        assertThat((+"bob" + string).path("xxx"), equalTo("/bob/xxx"))
-        assertThat((+"foo" + int).path(72), equalTo("/foo/72"))
+        assertThat((root +"bob" + string).path("xxx"), equalTo("/bob/xxx"))
+        assertThat((root +"foo" + int).path(72), equalTo("/foo/72"))
     }
     
     @Test
     fun route_prefixed_single_element_when_failing() {
-        assertThat((+"a" + int).parse("/a"), absent())
-        assertThat((+"b" + int).parse("/b/not-an-int"), absent())
-        assertThat((+"c" + int).parse("/c/10/unwanted-suffix"), absent())
-        assertThat((+"d" + int).parse("/c/10"), absent())
+        assertThat((root +"a" + int).parse("/a"), absent())
+        assertThat((root +"b" + int).parse("/b/not-an-int"), absent())
+        assertThat((root +"c" + int).parse("/c/10/unwanted-suffix"), absent())
+        assertThat((root +"d" + int).parse("/c/10"), absent())
     }
     
     @Test
@@ -48,14 +48,14 @@ class CompositionTests {
     
     @Test
     fun combined_routes() {
-        assertThat((int + string).parse("/9/alice"), equalTo(Empty + 9 + "alice"))
-        assertThat((root + int + string).parse("/9/alice"), equalTo(Empty + 9 + "alice"))
-        assertThat((root + "foo" + string + int).parse("/foo/bob/10"), equalTo(Empty + "bob" + 10))
+        assertThat((int + string).parse("/9/alice"), equalTo(tuple(9, "alice")))
+        assertThat((root + int + string).parse("/9/alice"), equalTo(tuple(9, "alice")))
+        assertThat((root + "foo" + string + int).parse("/foo/bob/10"), equalTo(tuple("bob", 10)))
     }
     
     @Test
     fun reverse_route() {
-        assertThat((int + string).path(Empty + 10 + "ten"), equalTo("/10/ten"))
+        assertThat((int + string).path(tuple(1, "ten")), equalTo("/1/ten"))
         assertThat((int + string).path(10, "ten"), equalTo("/10/ten"))
     }
     

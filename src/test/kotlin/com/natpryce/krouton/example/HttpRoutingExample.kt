@@ -4,15 +4,11 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.isEmptyString
 import com.natpryce.hamkrest.present
-import com.natpryce.krouton.Empty
-import com.natpryce.krouton.HStack3
 import com.natpryce.krouton.PathTemplate
 import com.natpryce.krouton.PathTemplate2
 import com.natpryce.krouton.Projection
+import com.natpryce.krouton.Tuple3
 import com.natpryce.krouton.asA
-import com.natpryce.krouton.component1
-import com.natpryce.krouton.component2
-import com.natpryce.krouton.component3
 import com.natpryce.krouton.getValue
 import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.int
@@ -21,6 +17,7 @@ import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
+import com.natpryce.krouton.tuple
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
 import org.http4k.core.Status
@@ -42,8 +39,8 @@ import java.util.Locale
 
 
 // An application-specific mapping between parsed URL elements and typed data
-object LocalDate_ : Projection<HStack3<Int, Int, Int>, LocalDate> {
-    override fun fromParts(parts: HStack3<Int, Int, Int>): LocalDate? {
+object LocalDate_ : Projection<Tuple3<Int, Int, Int>, LocalDate> {
+    override fun fromParts(parts: Tuple3<Int, Int, Int>): LocalDate? {
         val (year, month, day) = parts
         return try {
             LocalDate.of(year, month, day)
@@ -54,7 +51,7 @@ object LocalDate_ : Projection<HStack3<Int, Int, Int>, LocalDate> {
     }
     
     override fun toParts(mapped: LocalDate) =
-        Empty + mapped.year + mapped.monthValue + mapped.dayOfMonth
+        tuple(mapped.year, mapped.monthValue, mapped.dayOfMonth)
 }
 
 // Components of the application's routes

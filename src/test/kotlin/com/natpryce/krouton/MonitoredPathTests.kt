@@ -48,8 +48,8 @@ class MonitoredPathTests {
     
     data class Position(val x: Double, val y: Double)
     
-    private val position = projection(
-        fromParts = ::Position.forHStacks(),
-        toParts = { p -> Empty + p.x + p.y }
+    private val position = projection<Tuple2<Double,Double>, Position>(
+        fromParts = { Position(it.val1, it.val2)},
+        toParts = { tuple(it.x, it.y) }
     )
 }

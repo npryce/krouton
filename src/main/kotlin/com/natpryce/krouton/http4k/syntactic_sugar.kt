@@ -1,6 +1,5 @@
 package com.natpryce.krouton.http4k
 
-import com.natpryce.krouton.Empty
 import com.natpryce.krouton.PathTemplate
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -22,7 +21,7 @@ class ResourceRoutesBuilder {
         addPathHandler(this, handler)
     }
     
-    operator fun PathTemplate<Empty>.invoke(handler: (Request) -> Response) {
+    operator fun PathTemplate<Unit>.invoke(handler: (Request) -> Response) {
         addPathHandler(this, emptyHandler(handler))
     }
     
@@ -31,8 +30,8 @@ class ResourceRoutesBuilder {
     }
     
     @JvmName("methods0")
-    infix fun PathTemplate<Empty>.methods(block: MethodRoutesBuilderEmpty.() -> Unit) {
-        addPathHandler(this, MethodRoutesBuilderEmpty().apply(block).toHandler())
+    infix fun PathTemplate<Unit>.methods(block: MethodRoutesBuilderUnit.() -> Unit) {
+        addPathHandler(this, MethodRoutesBuilderUnit().apply(block).toHandler())
     }
     
     fun otherwise(handler: HttpHandler) {
@@ -71,8 +70,8 @@ class MethodRoutesBuilder<T> {
 }
 
 @RoutingSyntax
-class MethodRoutesBuilderEmpty {
-    private val routes = mutableListOf<(Request, Empty) -> Response?>()
+class MethodRoutesBuilderUnit {
+    private val routes = mutableListOf<(Request, Unit) -> Response?>()
     private var handlerIfNoMatch: (Request) -> Response = { Response(Status.METHOD_NOT_ALLOWED) }
     
     operator fun Method.invoke(handler: (Request) -> Response) {
@@ -88,7 +87,7 @@ class MethodRoutesBuilderEmpty {
         Router(routes, emptyHandler(handlerIfNoMatch))
 }
 
-private fun emptyHandler(handler: (Request) -> Response) = { r: Request, _: Empty -> handler(r) }
+private fun emptyHandler(handler: (Request) -> Response) = { r: Request, _: Unit -> handler(r) }
 
 
 fun resources(setup: ResourceRoutesBuilder.() -> Unit) =
