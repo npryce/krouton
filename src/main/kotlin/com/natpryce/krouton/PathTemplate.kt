@@ -37,17 +37,11 @@ fun <T> PathTemplate<T>.toUrlTemplate(): String =
     joinPath(templateElements(), ::encodeUrlTemplatePathElement)
 
 
-private fun decodePathElement(s: String): String =
-    URI(s).path
-
 internal fun splitPath(path: String) =
     path.split("/").filterNot(String::isEmpty).map(::decodePathElement)
 
 internal fun <T> joinPath(pathElements: List<T>, transform: (T) -> CharSequence) =
     "/" + pathElements.joinToString("/", transform = transform)
-
-internal fun encodePathElement(s: String): String =
-    UrlEscapers.urlPathSegmentEscaper().escape(s)
 
 internal fun encodeUrlTemplatePathElement(it: UrlTemplateElement): CharSequence {
     return when (it) {
