@@ -1,7 +1,5 @@
 package com.natpryce.krouton
 
-import com.google.common.net.UrlEscapers
-import java.net.URI
 import kotlin.reflect.KProperty
 
 
