@@ -22,16 +22,29 @@ apply plugin: 'signing'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    compile "org.http4k:http4k-core:$http4k_version"
+    compile("org.http4k:http4k-core:$http4k_version") {
+        exclude group: "org.jetbrains.kotlin"
+    }
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile 'junit:junit:4.12'
     testCompile 'com.natpryce:hamkrest:1.4.2.0'
-    testCompile "org.http4k:http4k-testing-hamkrest:$http4k_version"
+    testCompile("org.http4k:http4k-testing-hamkrest:$http4k_version") {
+        exclude group: "org.jetbrains.kotlin"
+    }
+    testCompile "org.junit.jupiter:junit-jupiter-api:+"
+    testCompile("com.oneeyedmen:minutest:+") {
+        exclude group: "org.jetbrains.kotlin"
+        exclude group: "junit"
+    }
+
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:+"
+    testRuntime "org.junit.platform:junit-platform-launcher:+"
+
 }
 
 jar {
@@ -39,6 +52,18 @@ jar {
         attributes 'Implementation-Title': 'krouton',
                 'Implementation-Vendor': 'com.natpryce',
                 'Implementation-Version': version
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
@@ -57,7 +82,7 @@ task javadocJar(type: Jar) {
 }
 
 test {
-    include 'com/natpryce/krouton/**'
+    useJUnitPlatform()
     scanForTestClasses true
     reports {
         junitXml.enabled = true

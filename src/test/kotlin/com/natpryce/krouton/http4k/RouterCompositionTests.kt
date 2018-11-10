@@ -3,12 +3,13 @@ package com.natpryce.krouton.http4k
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.unaryPlus
+import com.oneeyedmen.minutest.junit.JupiterTests
+import com.oneeyedmen.minutest.junit.context
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.OK
-import org.junit.Test
 
-class RouterCompositionTests {
+class RouterCompositionTests : JupiterTests {
     private val routeX = +"x"
     private val appX = resources {
         routeX methods {
@@ -23,21 +24,22 @@ class RouterCompositionTests {
         }
     }
     
-    @Test
-    fun `you can add Krouton apps together`() {
-        val composedApp = appX + appY
-        
-        val monolithicApp = resources {
-            routeX methods {
-                GET { Response(OK).body("x") }
-            }
-        
-            routeY methods {
-                GET { Response(OK).body("y") }
-            }
+    private val composedApp = appX + appY
+    
+    private val monolithicApp = resources {
+        routeX methods {
+            GET { Response(OK).body("x") }
         }
         
-        assertThat(composedApp.urlTemplates(), equalTo(monolithicApp.urlTemplates()))
-        assertThat(composedApp.router.handlerIfNoMatch, equalTo(appY.router.handlerIfNoMatch))
+        routeY methods {
+            GET { Response(OK).body("y") }
+        }
+    }
+    
+    override val tests = context<Unit> {
+        test("you can add Krouton apps together") {
+            assertThat(composedApp.urlTemplates(), equalTo(monolithicApp.urlTemplates()))
+            assertThat(composedApp.router.handlerIfNoMatch, equalTo(appY.router.handlerIfNoMatch))
+        }
     }
 }

@@ -11,6 +11,8 @@ import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
+import com.oneeyedmen.minutest.junit.JupiterTests
+import com.oneeyedmen.minutest.junit.context
 import org.http4k.core.Filter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
@@ -20,10 +22,9 @@ import org.http4k.core.Status
 import org.http4k.core.UriTemplate
 import org.http4k.routing.RoutedRequest
 import org.http4k.routing.RoutedResponse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
 
-class MonitoredRoutingTests {
+class MonitoredRoutingTests : JupiterTests {
     private val examplePath: PathTemplate2<String, Int> =
         root + "example" + string.named("name").monitored() + int.named("x")
     
@@ -38,53 +39,50 @@ class MonitoredRoutingTests {
         }
     }
     
-    @Test
-    fun `reports matched path template to app and caller`() {
-        val response = app(Request(GET, examplePath.path("alice", 10)))
+    override val tests = context<Unit> {
+        test("reports matched path template to app and caller`") {
+            val response = app(Request(GET, examplePath.path("alice", 10)))
+            
+            assertThat(response, cast(has(RoutedResponse::xUriTemplate, equalTo(
+                UriTemplate.from("/example/alice/{x}")))))
+        }
         
-        assertThat(response, cast(has(RoutedResponse::xUriTemplate, equalTo(
-            UriTemplate.from("/example/alice/{x}")))))
-    }
-    
-    class TestFilter: Filter {
-        var wasApplied = false
-        override fun invoke(next: HttpHandler): HttpHandler {
-            return { rq ->
-                wasApplied = true
-                next(rq)
+        class TestFilter : Filter {
+            var wasApplied = false
+            override fun invoke(next: HttpHandler): HttpHandler {
+                return { rq ->
+                    wasApplied = true
+                    next(rq)
+                }
             }
         }
+        
+        test("can apply a filter to all resources`") {
+            val filter = TestFilter()
+            
+            val filteredApp = app.withFilter(filter)
+            
+            val response = filteredApp(Request(GET, examplePath.path("alice", 10)))
     
-    }
+            assertTrue(filter.wasApplied, "filter should have been applied")
     
-    @Test
-    fun `can apply a filter to all resources`() {
-        val filter = TestFilter()
+            assertThat(response, cast(has(RoutedResponse::xUriTemplate, equalTo(
+                UriTemplate.from("/example/alice/{x}")))))
+        }
         
-        val filteredApp = app.withFilter(filter)
-        
-        val response = filteredApp(Request(GET, examplePath.path("alice", 10)))
-        
-        assertTrue("filter should have been applied", filter.wasApplied)
-        
-        assertThat(response, cast(has(RoutedResponse::xUriTemplate, equalTo(
-            UriTemplate.from("/example/alice/{x}")))))
-    }
+        test("filters are additive`") {
+            val filter1 = TestFilter()
+            val filter2 = TestFilter()
+            
+            val filteredApp = app.withFilter(filter1).withFilter(filter2)
+            
+            val response = filteredApp(Request(GET, examplePath.path("alice", 10)))
     
-    @Test
-    fun `filters are additive`() {
-        val filter1 = TestFilter()
-        val filter2 = TestFilter()
-        
-        val filteredApp = app.withFilter(filter1).withFilter(filter2)
-        
-        val response = filteredApp(Request(GET, examplePath.path("alice", 10)))
-        
-        assertTrue("filter 1 should have been applied", filter1.wasApplied)
-        assertTrue("filter 2 should have been applied", filter2.wasApplied)
-        
-        assertThat(response, cast(has(RoutedResponse::xUriTemplate, equalTo(
-            UriTemplate.from("/example/alice/{x}")))))
+            assertTrue(filter1.wasApplied, "filter 1 should have been applied")
+            assertTrue(filter2.wasApplied, "filter 2 should have been applied")
+    
+            assertThat(response, cast(has(RoutedResponse::xUriTemplate, equalTo(
+                UriTemplate.from("/example/alice/{x}")))))
+        }
     }
 }
-
