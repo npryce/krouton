@@ -52,13 +52,12 @@ class SingleElementRouteTests : JupiterTests {
         routing: List<Pair<String, T>> = emptyList(),
         forwardRouting: List<Pair<String, T>> = emptyList(),
         reverseRouting: List<Pair<T, String>> = emptyList(),
-        invalidPaths: List<String> = emptyList(),
-        noinline moreTests: TestContext<PathTemplate<T>>.() -> Unit = {}
+        invalidPaths: List<String> = emptyList()
     ) {
-        testContextFor(name, template, routing, forwardRouting, reverseRouting, invalidPaths, moreTests)
+        testContextFor(name, template, routing, forwardRouting, reverseRouting, invalidPaths)
     }
     
-    fun <T> TestContext<Unit>.testContextFor(name: String, template: PathTemplate<T>, routing: List<Pair<String, T>>, forwardRouting: List<Pair<String, T>>, reverseRouting: List<Pair<T, String>>, invalidPaths: List<String>, moreTests: TestContext<PathTemplate<T>>.() -> Unit) {
+    fun <T> TestContext<Unit>.testContextFor(name: String, template: PathTemplate<T>, routing: List<Pair<String, T>>, forwardRouting: List<Pair<String, T>>, reverseRouting: List<Pair<T, String>>, invalidPaths: List<String>) {
         derivedContext<PathTemplate<T>>(name) {
             fixture { template }
             
@@ -81,8 +80,6 @@ class SingleElementRouteTests : JupiterTests {
                     }
                 }
             }
-            
-            moreTests()
         }
     }
     
