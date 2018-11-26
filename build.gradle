@@ -37,9 +37,8 @@ dependencies {
         exclude group: "org.jetbrains.kotlin"
     }
     testCompile "org.junit.jupiter:junit-jupiter-api:+"
-    testCompile("com.oneeyedmen:minutest:0.23.0") {
+    testCompile("com.oneeyedmen:minutest:0.25.0") {
         exclude group: "org.jetbrains.kotlin"
-        exclude group: "junit"
     }
 
     testRuntime "org.junit.jupiter:junit-jupiter-engine:+"
@@ -160,8 +159,7 @@ uploadArchives {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.9'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+wrapper {
+    gradleVersion = '5.0'
 }
 

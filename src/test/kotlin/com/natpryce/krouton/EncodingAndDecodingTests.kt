@@ -2,11 +2,10 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.junit.JupiterTests
-import com.oneeyedmen.minutest.junit.context
+import com.oneeyedmen.minutest.experimental.context
 
 
-class EncodingAndDecodingTests : JupiterTests {
+val `encoding and decoding` = context<Unit> {
     val examples = listOf(
         listOf("hits", "zz top") to "/hits/zz%20top",
         listOf("hits", "ac/dc") to "/hits/ac%2Fdc",
@@ -16,18 +15,16 @@ class EncodingAndDecodingTests : JupiterTests {
         listOf("hits", "x+y") to "/hits/x%2By"
     )
     
-    override val tests = context<Unit> {
-        examples.forEach { (elements, encoded) ->
-            test("$elements <-> $encoded") {
-                assertThat("encoding", joinPath(elements, ::encodePathElement), equalTo(encoded))
-                assertThat("decoding", splitPath(encoded), equalTo(elements))
-            }
+    examples.forEach { (elements, encoded) ->
+        test("$elements <-> $encoded") {
+            assertThat("encoding", joinPath(elements, ::encodePathElement), equalTo(encoded))
+            assertThat("decoding", splitPath(encoded), equalTo(elements))
         }
-        
-        test("can decode a plus if it receives one") {
-            // Testing this as a special case because we call through to the UrlDecoder after making the text not
-            // actually x-www-url-form-encoded format.
-            assertThat("decoding", splitPath("/hits/x+y"), equalTo(listOf("hits", "x+y")))
-        }
+    }
+    
+    test("can decode a plus if it receives one") {
+        // Testing this as a special case because we call through to the UrlDecoder after making the text not
+        // actually x-www-url-form-encoded format.
+        assertThat("decoding", splitPath("/hits/x+y"), equalTo(listOf("hits", "x+y")))
     }
 }

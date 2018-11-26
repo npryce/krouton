@@ -18,8 +18,8 @@ import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
 import com.natpryce.krouton.tuple
-import com.oneeyedmen.minutest.junit.JupiterTests
-import com.oneeyedmen.minutest.junit.context
+import com.oneeyedmen.minutest.experimental.context
+import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
 import org.http4k.core.Status
@@ -71,36 +71,36 @@ val reversed = root + "reversed" + string
 
 // The server that uses the routes
 val demo = resources {
-        root methods {
-            GET { ok("Hello, World.") }
-        }
-        
-        negate methods {
-            GET { _, i -> ok((-i).toString()) }
-        }
-        
-        negative methods {
-            // Note - reverse routing from integer to URL path
-            GET { _, i -> redirect(MOVED_PERMANENTLY, negate.path(i)) }
-        }
-        
-        reverse methods {
-            GET { _, s -> ok(s.reversed()) }
-        }
-        
-        reversed methods {
-            GET { _, s -> redirect(MOVED_PERMANENTLY, reverse.path(s)) }
-        }
-        
-        weekday methods {
-            GET { _, (locale, date) -> ok(date.format(DateTimeFormatter.ofPattern("EEEE", locale))) }
-        }
-        
-        weekdayToday methods {
-            /* Note - reverse routing using user-defined projection*/
-            GET { _, locale -> redirect(FOUND, weekday.path(locale, now())) }
-        }
+    root methods {
+        GET { ok("Hello, World.") }
     }
+    
+    negate methods {
+        GET { _, i -> ok((-i).toString()) }
+    }
+    
+    negative methods {
+        // Note - reverse routing from integer to URL path
+        GET { _, i -> redirect(MOVED_PERMANENTLY, negate.path(i)) }
+    }
+    
+    reverse methods {
+        GET { _, s -> ok(s.reversed()) }
+    }
+    
+    reversed methods {
+        GET { _, s -> redirect(MOVED_PERMANENTLY, reverse.path(s)) }
+    }
+    
+    weekday methods {
+        GET { _, (locale, date) -> ok(date.format(DateTimeFormatter.ofPattern("EEEE", locale))) }
+    }
+    
+    weekdayToday methods {
+        /* Note - reverse routing using user-defined projection*/
+        GET { _, locale -> redirect(FOUND, weekday.path(locale, now())) }
+    }
+}
 
 private fun ok(s: String) =
     Response(OK).body(s)
@@ -109,39 +109,39 @@ private fun redirect(status: Status, location: String) =
     Response(status).header("Location", location)
 
 
-class HttpRoutingExample : JupiterTests {
-    override val tests = context<Unit> {
-        test("negate") {
-            assertThat(getText(demo, "/negate/100"), equalTo("-100"))
-        }
+val `HttpRouting tests` = context<HttpHandler> {
+    fixture { demo }
     
-        test("negative_redirects_to_negate") {
-            assertThat(getText(demo, "/negative/20"), equalTo("-20"))
-        }
-    
-        test("reverse") {
-            assertThat(getText(demo, "/reverse/hello%20world"), equalTo("dlrow olleh"))
-        }
-    
-        test("weekday") {
-            assertThat(getText(demo, "/weekday/en/2016/02/29"), equalTo("Monday"))
-            assertThat(getText(demo, "/weekday/fr/2016/02/29"), equalTo("lundi"))
-            assertThat(getText(demo, "/weekday/de/2016/02/29"), equalTo("Montag"))
-        
-            assertThat(getText(demo, "/weekday/en/2016/03/01"), equalTo("Tuesday"))
-        }
-    
-        test("weekday_today") {
-            assertThat(getText(demo, "/weekday/en/today"), present(!isEmptyString))
-        }
-    
-        test("bad_dates_not_found") {
-            assertThat(get(demo, "/weekday/2016/02/30").status, equalTo(NOT_FOUND))
-        }
-    
-        test("root") {
-            assertThat(getText(demo, "/"), equalTo("Hello, World."))
-        }
+    test("negate") {
+        assertThat(getText("/negate/100"), equalTo("-100"))
     }
     
+    test("negative_redirects_to_negate") {
+        assertThat(getText("/negative/20"), equalTo("-20"))
+    }
+    
+    test("reverse") {
+        assertThat(getText("/reverse/hello%20world"), equalTo("dlrow olleh"))
+    }
+    
+    test("weekday") {
+        assertThat(getText("/weekday/en/2016/02/29"), equalTo("Monday"))
+        assertThat(getText("/weekday/fr/2016/02/29"), equalTo("lundi"))
+        assertThat(getText("/weekday/de/2016/02/29"), equalTo("Montag"))
+        
+        assertThat(getText("/weekday/en/2016/03/01"), equalTo("Tuesday"))
+    }
+    
+    test("weekday_today") {
+        assertThat(getText("/weekday/en/today"), present(!isEmptyString))
+    }
+    
+    test("bad_dates_not_found") {
+        assertThat(get("/weekday/2016/02/30").status, equalTo(NOT_FOUND))
+    }
+    
+    test("root") {
+        assertThat(getText("/"), equalTo("Hello, World."))
+    }
 }
+    
