@@ -37,7 +37,7 @@ dependencies {
         exclude group: "org.jetbrains.kotlin"
     }
     testCompile "org.junit.jupiter:junit-jupiter-api:+"
-    testCompile("com.oneeyedmen:minutest:0.25.0") {
+    testCompile("com.oneeyedmen:minutest:0.41.0") {
         exclude group: "org.jetbrains.kotlin"
     }
 

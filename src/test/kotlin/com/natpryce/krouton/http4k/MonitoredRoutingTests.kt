@@ -11,9 +11,7 @@ import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
-import com.oneeyedmen.minutest.experimental.context
-import com.oneeyedmen.minutest.junit.JupiterTests
-import com.oneeyedmen.minutest.junit.context
+import com.oneeyedmen.minutest.rootContext
 import org.http4k.core.Filter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
@@ -39,7 +37,7 @@ private val app = resources {
     }
 }
 
-val `monitored routing` = context<Unit> {
+fun `monitored routing`() = rootContext<Unit> {
     test("reports matched path template to app and caller`") {
         val response = app(Request(GET, examplePath.path("alice", 10)))
         

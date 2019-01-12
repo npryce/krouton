@@ -3,11 +3,11 @@ package com.natpryce.krouton
 import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.experimental.context
+import com.oneeyedmen.minutest.rootContext
 
 private val route = int where { it > 10 }
 
-val restriction = context<Unit> {
+fun restriction() = rootContext<Unit> {
     test("restricted route") {
         assertThat(route.parse("/0"), absent())
         assertThat(route.parse("/10"), absent())

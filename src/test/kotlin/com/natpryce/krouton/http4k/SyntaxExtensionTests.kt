@@ -5,9 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.unaryPlus
-import com.oneeyedmen.minutest.experimental.context
-import com.oneeyedmen.minutest.junit.JupiterTests
-import com.oneeyedmen.minutest.junit.context
+import com.oneeyedmen.minutest.rootContext
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -15,7 +13,7 @@ import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import java.time.LocalTime
 
-val `extending the Krouton syntax` = context<Unit> {
+fun `extending the Krouton syntax`() = rootContext<Unit> {
     
     val internalRoot = +"internal"
     val status = internalRoot + "status"

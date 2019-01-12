@@ -3,9 +3,9 @@ package com.natpryce.krouton
 import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.experimental.context
+import com.oneeyedmen.minutest.rootContext
 
-val `composition of routes` = context<Unit> {
+fun `composition of routes`() = rootContext<Unit> {
     test("route prefixed single element") {
         assertThat((root + "foo" + string).parse("/foo/bob"), equalTo("bob"))
         assertThat((root + "bar" + int).parse("/bar/99"), equalTo(99))

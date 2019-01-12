@@ -2,10 +2,10 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.experimental.context
+import com.oneeyedmen.minutest.rootContext
 
 
-val `encoding and decoding` = context<Unit> {
+val `encoding and decoding` = rootContext<Unit> {
     val examples = listOf(
         listOf("hits", "zz top") to "/hits/zz%20top",
         listOf("hits", "ac/dc") to "/hits/ac%2Fdc",

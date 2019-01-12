@@ -8,7 +8,7 @@ import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.unaryPlus
-import com.oneeyedmen.minutest.experimental.context
+import com.oneeyedmen.minutest.rootContext
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
@@ -56,7 +56,7 @@ val calculatorService = resources {
 
 private fun ok(value: Double) = Response(OK).body(value.toString())
 
-val `CalculatorService tests` = context<HttpHandler> {
+fun `CalculatorService tests`() = rootContext<HttpHandler> {
     fixture { calculatorService }
     
     test("adding") {

@@ -18,7 +18,7 @@ import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
 import com.natpryce.krouton.tuple
-import com.oneeyedmen.minutest.experimental.context
+import com.oneeyedmen.minutest.rootContext
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
@@ -109,7 +109,7 @@ private fun redirect(status: Status, location: String) =
     Response(status).header("Location", location)
 
 
-val `HttpRouting tests` = context<HttpHandler> {
+fun `HttpRouting tests`() = rootContext<HttpHandler> {
     fixture { demo }
     
     test("negate") {

@@ -6,14 +6,12 @@ import com.natpryce.hamkrest.describe
 import com.natpryce.hamkrest.equalTo
 import com.oneeyedmen.minutest.Context
 import com.oneeyedmen.minutest.TestContext
-import com.oneeyedmen.minutest.experimental.context
-import com.oneeyedmen.minutest.junit.JupiterTests
-import com.oneeyedmen.minutest.junit.context
+import com.oneeyedmen.minutest.rootContext
 import java.time.LocalDate
 import java.util.Locale
 
 
-val `single element routes` = context<Unit> {
+val `single element routes` = rootContext<Unit> {
     behaviourOf(string,
         routing = listOf("/foo" to "foo"),
         invalidPaths = listOf("/", "/foo/bar"))

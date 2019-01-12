@@ -2,13 +2,11 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.experimental.context
-import com.oneeyedmen.minutest.junit.JupiterTests
-import com.oneeyedmen.minutest.junit.context
+import com.oneeyedmen.minutest.rootContext
 import java.util.Date
 
 
-val `projection of multiple path elements to single composite path element` = context<Unit> {
+fun `projection of multiple path elements to single composite path element`() = rootContext<Unit> {
     test("route for abstracted scalar") {
         assertThat(timestamp.parse("/30"), equalTo(Date(30)))
     }

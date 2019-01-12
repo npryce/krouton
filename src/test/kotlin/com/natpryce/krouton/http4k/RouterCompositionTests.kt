@@ -3,14 +3,12 @@ package com.natpryce.krouton.http4k
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.unaryPlus
-import com.oneeyedmen.minutest.experimental.context
-import com.oneeyedmen.minutest.junit.JupiterTests
-import com.oneeyedmen.minutest.junit.context
+import com.oneeyedmen.minutest.rootContext
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.OK
 
-val `composition of routers` = context<Unit> {
+fun `composition of routers`() = rootContext<Unit> {
     val routeX = +"x"
     val appX = resources {
         routeX methods {
