@@ -2,10 +2,11 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.oneeyedmen.minutest.experimental.randomTest
 import com.oneeyedmen.minutest.rootContext
 
 
-val `encoding and decoding` = rootContext<Unit> {
+fun `encoding and decoding`() = rootContext<Unit> {
     val examples = listOf(
         listOf("hits", "zz top") to "/hits/zz%20top",
         listOf("hits", "ac/dc") to "/hits/ac%2Fdc",
@@ -26,5 +27,16 @@ val `encoding and decoding` = rootContext<Unit> {
         // Testing this as a special case because we call through to the UrlDecoder after making the text not
         // actually x-www-url-form-encoded format.
         assertThat("decoding", splitPath("/hits/x+y"), equalTo(listOf("hits", "x+y")))
+    }
+    
+    randomTest("fuzzing") { random ->
+        repeat(100) { n ->
+            val original = random.nextBytes(16).toString(Charsets.UTF_8)
+            
+            val encoded = encodePathElement(original)
+            val decoded = decodePathElement(encoded)
+            
+            assertThat(decoded, equalTo(original))
+        }
     }
 }

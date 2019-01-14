@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.util.Locale
 
 
-val `single element routes` = rootContext<Unit> {
+fun `single element routes`() = rootContext<Unit> {
     behaviourOf(string,
         routing = listOf("/foo" to "foo"),
         invalidPaths = listOf("/", "/foo/bar"))
