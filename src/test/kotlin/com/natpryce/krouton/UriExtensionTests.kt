@@ -2,10 +2,12 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
+import org.junit.platform.commons.annotation.Testable
 import java.net.URI
 
-fun `extend URI path with template and parameters`() = rootContext<Unit> {
+@Testable
+fun `extend URI path with template and parameters`() = rootContext {
     val alice = root + "alice"
     val aliceX = alice + string.named("x")
     

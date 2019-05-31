@@ -3,9 +3,11 @@ package com.natpryce.krouton
 import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
+import org.junit.platform.commons.annotation.Testable
 
-fun `composition of routes`() = rootContext<Unit> {
+@Testable
+fun `composition of routes`() = rootContext {
     test("route prefixed single element") {
         assertThat((root + "foo" + string).parse("/foo/bob"), equalTo("bob"))
         assertThat((root + "bar" + int).parse("/bar/99"), equalTo(99))

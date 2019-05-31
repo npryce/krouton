@@ -2,11 +2,13 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.experimental.randomTest
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.experimental.randomTest
+import dev.minutest.junit.JUnit5Minutests
+import dev.minutest.rootContext
+import org.junit.platform.commons.annotation.Testable
 
-
-fun `encoding and decoding`() = rootContext<Unit> {
+@Testable
+fun `encoding and decoding`() = rootContext {
     val examples = listOf(
         listOf("hits", "zz top") to "/hits/zz%20top",
         listOf("hits", "ac/dc") to "/hits/ac%2Fdc",
@@ -29,8 +31,8 @@ fun `encoding and decoding`() = rootContext<Unit> {
         assertThat("decoding", splitPath("/hits/x+y"), equalTo(listOf("hits", "x+y")))
     }
     
-    randomTest("fuzzing") { random ->
-        repeat(100) { n ->
+    randomTest("fuzzing") { random, _ ->
+        repeat(100) { _ ->
             val original = random.nextBytes(16).toString(Charsets.UTF_8)
             
             val encoded = encodePathElement(original)

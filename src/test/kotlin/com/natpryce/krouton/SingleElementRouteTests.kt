@@ -4,14 +4,16 @@ import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.describe
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.Context
-import com.oneeyedmen.minutest.TestContext
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.ContextBuilder
+import dev.minutest.TestContextBuilder
+import dev.minutest.rootContext
+import org.junit.platform.commons.annotation.Testable
 import java.time.LocalDate
 import java.util.Locale
 
 
-fun `single element routes`() = rootContext<Unit> {
+@Testable
+fun `single element routes`() = rootContext {
     behaviourOf(string,
         routing = listOf("/foo" to "foo"),
         invalidPaths = listOf("/", "/foo/bar"))
@@ -46,7 +48,7 @@ private enum class Axis { X, Y, Z }
 private val axis: VariablePathElement<Axis> by enum()
 
 
-inline fun <reified T> TestContext<Unit>.behaviourOf(
+inline fun <reified T> ContextBuilder<Unit>.behaviourOf(
     template: PathTemplate<T>,
     name: String = T::class.simpleName ?: template.toUrlTemplate(),
     routing: List<Pair<String, T>> = emptyList(),
@@ -57,7 +59,14 @@ inline fun <reified T> TestContext<Unit>.behaviourOf(
     testContextFor(name, template, routing, forwardRouting, reverseRouting, invalidPaths)
 }
 
-fun <T> TestContext<Unit>.testContextFor(name: String, template: PathTemplate<T>, routing: List<Pair<String, T>>, forwardRouting: List<Pair<String, T>>, reverseRouting: List<Pair<T, String>>, invalidPaths: List<String>) {
+fun <T> ContextBuilder<Unit>.testContextFor(
+    name: String,
+    template: PathTemplate<T>,
+    routing: List<Pair<String, T>>,
+    forwardRouting: List<Pair<String, T>>,
+    reverseRouting: List<Pair<T, String>>,
+    invalidPaths: List<String>)
+{
     derivedContext<PathTemplate<T>>(name) {
         fixture { template }
         
@@ -74,9 +83,10 @@ fun <T> TestContext<Unit>.testContextFor(name: String, template: PathTemplate<T>
         }
         
         context("parsing invalid paths") {
-            invalidPaths.forEach {
-                test("$it is an invalid path") {
-                    assertThat(parse(it), absent())
+            invalidPaths.forEach { path: String ->
+                test("$path is an invalid path") {
+                    val actual = parse(path)
+                    assertThat(actual, absent<T>())
                 }
             }
         }
@@ -86,13 +96,13 @@ fun <T> TestContext<Unit>.testContextFor(name: String, template: PathTemplate<T>
 
 private fun <T, U> Iterable<Pair<T, U>>.flipAll(): List<Pair<U, T>> = map { it.second to it.first }
 
-private fun <T> Context<PathTemplate<T>, PathTemplate<T>>.testToPath(value: T, validPath: String) {
+private fun <T> TestContextBuilder<PathTemplate<T>, PathTemplate<T>>.testToPath(value: T, validPath: String) {
     test("${describe(value)} generates the path $validPath") {
         assertThat(path(value), equalTo(validPath))
     }
 }
 
-private fun <T> Context<PathTemplate<T>, PathTemplate<T>>.testParse(validPath: String, value: T) {
+private fun <T> TestContextBuilder<PathTemplate<T>, PathTemplate<T>>.testParse(validPath: String, value: T) {
     test("$validPath parses to ${describe(value)}") {
         assertThat(parse(validPath), equalTo(value))
     }

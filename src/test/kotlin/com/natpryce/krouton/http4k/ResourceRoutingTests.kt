@@ -9,7 +9,7 @@ import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
 import com.natpryce.krouton.unaryPlus
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Method.PUT
@@ -18,6 +18,7 @@ import org.http4k.core.Response
 import org.http4k.core.Status.Companion.METHOD_NOT_ALLOWED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
+import org.junit.platform.commons.annotation.Testable
 
 
 private val incrementInt = +"inc" + int.named("i")
@@ -25,7 +26,8 @@ private val incrementDouble = +"inc" + double.named("d")
 private val a = +"a"
 private val b = +"b"
 
-fun `routing HTTP4K requests via Krouton routes`() = rootContext<Unit> {
+@Testable
+fun `routing HTTP4K requests via Krouton routes`() = rootContext {
     test("routes by path`") {
         val router = resources {
             incrementInt { _, n ->

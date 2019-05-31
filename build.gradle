@@ -37,7 +37,7 @@ dependencies {
         exclude group: "org.jetbrains.kotlin"
     }
     testCompile "org.junit.jupiter:junit-jupiter-api:+"
-    testCompile("com.oneeyedmen:minutest:0.41.0") {
+    testCompile("dev.minutest:minutest:1.7.0") {
         exclude group: "org.jetbrains.kotlin"
     }
 
@@ -81,20 +81,14 @@ task javadocJar(type: Jar) {
 }
 
 test {
-    useJUnitPlatform()
-    scanForTestClasses true
-    reports {
-        junitXml.enabled = true
-        html.enabled = true
+    useJUnitPlatform {
+        includeEngines 'minutest'
     }
-
-    beforeTest { desc ->
-        print "${desc.className.substring("com.natpryce.krouton.".length())}: ${desc.name.replace("_", " ")}"
-    }
-    afterTest { desc, result ->
-        println " -> ${result.resultType}"
+    testLogging {
+        events "passed", "skipped", "failed"
     }
 }
+
 
 artifacts {
     archives sourcesJar, javadocJar
@@ -160,6 +154,6 @@ uploadArchives {
 }
 
 wrapper {
-    gradleVersion = '5.0'
+    gradleVersion = '5.4.1'
 }
 

@@ -18,7 +18,7 @@ import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
 import com.natpryce.krouton.tuple
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
@@ -27,6 +27,7 @@ import org.http4k.core.Status.Companion.FOUND
 import org.http4k.core.Status.Companion.MOVED_PERMANENTLY
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
+import org.junit.platform.commons.annotation.Testable
 import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.LocalDate.now
@@ -109,6 +110,7 @@ private fun redirect(status: Status, location: String) =
     Response(status).header("Location", location)
 
 
+@Testable
 fun `HttpRouting tests`() = rootContext<HttpHandler> {
     fixture { demo }
     

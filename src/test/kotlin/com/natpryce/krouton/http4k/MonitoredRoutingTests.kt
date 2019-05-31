@@ -11,7 +11,7 @@ import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.root
 import com.natpryce.krouton.string
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
 import org.http4k.core.Filter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
@@ -22,6 +22,7 @@ import org.http4k.core.UriTemplate
 import org.http4k.routing.RoutedRequest
 import org.http4k.routing.RoutedResponse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.platform.commons.annotation.Testable
 
 private val examplePath: PathTemplate2<String, Int> =
     root + "example" + string.named("name").monitored() + int.named("x")
@@ -37,7 +38,8 @@ private val app = resources {
     }
 }
 
-fun `monitored routing`() = rootContext<Unit> {
+@Testable
+fun `monitored routing`() = rootContext {
     test("reports matched path template to app and caller`") {
         val response = app(Request(GET, examplePath.path("alice", 10)))
         

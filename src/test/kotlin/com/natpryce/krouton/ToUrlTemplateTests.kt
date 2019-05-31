@@ -2,10 +2,12 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
+import org.junit.platform.commons.annotation.Testable
 
 
-fun `converting krouton routes to url template syntax`() = rootContext<Unit> {
+@Testable
+fun `converting krouton routes to url template syntax`() = rootContext {
     val nameAndScorePath = +"player" + string.named("p").monitored() + "score" + int.named("s")
     val scorePath = nameAndScorePath asA Score
     

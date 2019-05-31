@@ -5,16 +5,17 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.unaryPlus
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
+import org.junit.platform.commons.annotation.Testable
 import java.time.LocalTime
 
-fun `extending the Krouton syntax`() = rootContext<Unit> {
-    
+@Testable
+fun `extending the Krouton syntax`() = rootContext {
     val internalRoot = +"internal"
     val status = internalRoot + "status"
     val config = internalRoot + "config"

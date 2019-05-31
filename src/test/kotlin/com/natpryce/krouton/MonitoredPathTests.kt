@@ -2,10 +2,12 @@ package com.natpryce.krouton
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
+import org.junit.platform.commons.annotation.Testable
 
 
-fun `reporting the monitored path`() = rootContext<Unit> {
+@Testable
+fun `reporting the monitored path`() = rootContext {
     test("reports symbolic name of variable path element") {
         assertThat(string.named("s").monitoredPath("foo"), equalTo("/{s}"))
         assertThat(int.named("i").monitoredPath(10), equalTo("/{i}"))

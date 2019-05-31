@@ -8,12 +8,13 @@ import com.natpryce.krouton.http4k.resources
 import com.natpryce.krouton.path
 import com.natpryce.krouton.plus
 import com.natpryce.krouton.unaryPlus
-import com.oneeyedmen.minutest.rootContext
+import dev.minutest.rootContext
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.MOVED_PERMANENTLY
 import org.http4k.core.Status.Companion.OK
+import org.junit.platform.commons.annotation.Testable
 
 
 val operands: PathTemplate2<Double, Double> = double + double
@@ -56,6 +57,7 @@ val calculatorService = resources {
 
 private fun ok(value: Double) = Response(OK).body(value.toString())
 
+@Testable
 fun `CalculatorService tests`() = rootContext<HttpHandler> {
     fixture { calculatorService }
     
