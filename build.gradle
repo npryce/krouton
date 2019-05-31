@@ -84,8 +84,11 @@ test {
     useJUnitPlatform {
         includeEngines 'minutest'
     }
-    testLogging {
-        events "passed", "skipped", "failed"
+    beforeTest { desc ->
+        print desc.name
+    }
+    afterTest { desc, result ->
+        println " -> ${result.resultType}"
     }
 }
 
