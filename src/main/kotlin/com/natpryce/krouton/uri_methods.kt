@@ -35,4 +35,4 @@ fun <T1, T2, T3, T4> URI.extend(route: PathTemplate4<T1, T2, T3, T4>, p1: T1, p2
     extend(route.path(p1, p2, p3, p4))
 
 fun URI.extend(pathExtension: String) =
-    URI(scheme, userInfo, host, port, path.removeSuffix("/") + pathExtension, query, fragment)
+    resolve(path.removeSuffix("/") + pathExtension)
