@@ -7,6 +7,8 @@ println "building version ${version}"
 buildscript {
     ext.kotlin_version = '1.3.0'
     ext.http4k_version = '3.33.2'
+    ext.junit_version = "5.4.2"
+    ext.junit_platform_version = "1.4.2"
     repositories {
         mavenCentral()
         jcenter()
@@ -36,13 +38,13 @@ dependencies {
     testCompile("org.http4k:http4k-testing-hamkrest:$http4k_version") {
         exclude group: "org.jetbrains.kotlin"
     }
-    testCompile "org.junit.jupiter:junit-jupiter-api:+"
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testCompile("dev.minutest:minutest:1.7.0") {
         exclude group: "org.jetbrains.kotlin"
     }
 
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:+"
-    testRuntime "org.junit.platform:junit-platform-launcher:+"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junit_version"
+    testRuntime "org.junit.platform:junit-platform-launcher:$junit_platform_version"
 
 }
 
