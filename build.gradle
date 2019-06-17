@@ -94,7 +94,7 @@ test {
 
 
 artifacts {
-    archives sourcesJar, javadocJar
+    archives javadocJar
 }
 
 signing {
