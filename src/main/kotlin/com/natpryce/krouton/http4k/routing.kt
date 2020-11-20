@@ -8,6 +8,7 @@ import com.natpryce.krouton.toUrlTemplate
 import org.http4k.core.Filter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
+import org.http4k.core.NoOp
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.UriTemplate
@@ -83,7 +84,7 @@ fun ResourceRouter.withFilter(newFilter: Filter) =
 data class PathParsingRoute<T>(
     private val pathTemplate: PathTemplate<T>,
     private val handler: (Request, T) -> Response,
-    internal val filter: Filter = Filter { it }
+    internal val filter: Filter = Filter.NoOp
 ) : Route<List<String>>, ReportsUrlTemplates {
     
     override fun invoke(request: Request, path: List<String>): Response? =
