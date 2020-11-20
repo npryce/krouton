@@ -83,7 +83,7 @@ fun ResourceRouter.withFilter(newFilter: Filter) =
 data class PathParsingRoute<T>(
     private val pathTemplate: PathTemplate<T>,
     private val handler: (Request, T) -> Response,
-    internal val filter: Filter = Filter { it -> it }
+    internal val filter: Filter = Filter { it }
 ) : Route<List<String>>, ReportsUrlTemplates {
     
     override fun invoke(request: Request, path: List<String>): Response? =
